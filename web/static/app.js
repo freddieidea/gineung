@@ -826,6 +826,7 @@
   const LV_DESC = { 긴급: "생명·돌봄 기능 단절 · 즉시 조치", 주의: "대체 수단 부족 · 조치 검토", 관찰: "공백 있음 · 조치 불필요 · 매일 재검토", "해당 없음": "공백 없음 또는 생활 필수 기능 아님" };
   const DOW = ["일", "월", "화", "수", "목", "금", "토"];
   const dayLabel = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ""); if (!m) return ""; const dt = new Date(+m[1], +m[2] - 1, +m[3]); return `${+m[2]}월 ${+m[3]}일(${DOW[dt.getDay()]})`; };
+  const bDay = () => (brief && brief.날짜 ? dayShort(brief.날짜) : "오늘");   // (10/29 헌준님) '오늘' 대신 보고서 날짜로 적어 객관적으로
   const clock = (iso) => { const m = /T(\d{2}):(\d{2})/.exec(iso || ""); if (!m) return ""; const h = +m[1]; return `${h < 12 ? "오전" : "오후"} ${h % 12 || 12}시${+m[2] ? ` ${+m[2]}분` : ""}`; };
   function drawGov() {}   // (예전 '전체 목록' 자리. 종류 고르기에서 부름)
   // 담당자 접속 코드 (지자체 화면 잠금)
@@ -891,7 +892,7 @@
     const t = el("div", "gv-run-t");
     const today = new Date(); const isToday = run && run.시작.slice(0, 10) === (d.오늘 || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`);
     if (live) t.append(el("b", null, "점검 중"), el("span", null, "완료 시 보고서 즉시 반영"));
-    else if (run) t.append(el("b", null, `${isToday ? "오늘" : dayLabel(run.시작)} ${clock(run.시작)} 점검 완료`), el("span", null, `${d.일정 || "평일 오전 8시 30분"} 인허가 자료 자동 점검`));
+    else if (run) t.append(el("b", null, `${dayLabel(run.시작)} ${clock(run.시작)} 점검 완료`), el("span", null, `${d.일정 || "평일 오전 8시 30분"} 인허가 자료 자동 점검`));
     else t.append(el("b", null, "점검 기록 없음"), el("span", null, "서버 가동 시 즉시 점검"));
     head.append(dot, t);
     const again = el("button", "btn-chip", live ? "점검 중" : "다시 점검"); again.disabled = live;
@@ -979,7 +980,7 @@
     const empty = $("#gv-gap-empty");
     empty.textContent = urg.length + attn.length + c.관찰 ? "" : "오늘 없음";
     const other = sel.reduce((n, g) => n + (G[g].대상아님_오늘 || 0), 0), on = $("#gv-quiet-other");   // 오늘 확정분만 ('검토 완료'와 같은 날 기준, 10/26)
-    on.hidden = !other; on.textContent = other ? `판정 대상 아님 ${won(other)}곳(오늘 확정분) · 카페·음식점·오락 등` : "";
+    on.hidden = !other; on.textContent = other ? `판정 대상 아님 ${won(other)}곳(${bDay()} 확정분) · 카페·음식점·오락 등` : "";
     empty.hidden = !empty.textContent;
     drawAsk(asks, qs);
     const wait = (brief.확인대기 || []).filter((r) => !govGu || r.구군 === govGu), wn = $("#gv-ask-wait");
@@ -1146,7 +1147,7 @@
     $("#gv-watch-h").hidden = !watch.length; $("#gv-watch-n").textContent = String(watch.length);
     const wl = $("#gv-watch-list"); wl.innerHTML = ""; watch.forEach((r) => wl.append(row(r)));
     $("#gv-quiet").hidden = !none.length && !$("#gv-quiet-other").textContent; $("#gv-quiet-n").textContent = none.length ? `${none.length}곳` : "";
-    $("#gv-quiet-today").textContent = (none.length ? `검토 완료 ${none.length}곳(오늘 확정분)` : "검토 완료 해당 없음(오늘 확정분)") + " · 이전 확정분은 업무 보조에서 조회";
+    $("#gv-quiet-today").textContent = (none.length ? `검토 완료 ${none.length}곳(${bDay()} 확정분)` : `검토 완료 해당 없음(${bDay()} 확정분)`) + " · 이전 확정분은 업무 보조에서 조회";
     none.sort((a, b) => (b.확정일 || "").localeCompare(a.확정일 || ""));   // 최근 확정 먼저
     // 검토 완료 (10/21 재정리): ① 공공·복지·의료는 한 곳씩 ② 민간 생활 시설은 공백 경미만 한 곳씩, 공백 없음은 업종별로 묶음(눌러서 펼침)
     const nl = $("#gv-quiet-list"); nl.innerHTML = "";
