@@ -1,0 +1,10 @@
+# API 키·접속 코드 (저장소 미포함)
+settings/
+# 자료 (용량·이용 조건상 미포함)
+data/
+engine/data/
+# 기타
+__pycache__/
+*.pyc
+*.prev
+.DS_Store

@@ -1,0 +1,166 @@
+<title>생활기능 등급표</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 한 줄 기준표(규칙) → 요약 → 확인할 것 → 분야별 표. 행정 문서처럼 차분하게, 등급만 색으로 구분 */
+:root{
+  --bg:#f3f6f5; --panel:#ffffff; --fg:#1d2624; --muted:#5c6b67; --line:#d7e0dd; --accent:#1f6f66;
+  --must:#a33a2c; --must-bg:#f7e4e0; --semi:#8a5a00; --semi-bg:#f8ecd2; --opt:#4d5d6b; --opt-bg:#e5eaee;
+  --flag:#6b3fa0; --flag-bg:#efe6f8;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121816; --panel:#1a2220; --fg:#e3ebe8; --muted:#9aaba6; --line:#2c3835; --accent:#5cc2b5;
+  --must:#f08e7f; --must-bg:#3a201c; --semi:#e8b75c; --semi-bg:#352a12; --opt:#a9b8c5; --opt-bg:#232c33;
+  --flag:#c3a1ee; --flag-bg:#2b2238; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --panel:#1a2220; --fg:#e3ebe8; --muted:#9aaba6; --line:#2c3835; --accent:#5cc2b5;
+  --must:#f08e7f; --must-bg:#3a201c; --semi:#e8b75c; --semi-bg:#352a12; --opt:#a9b8c5; --opt-bg:#232c33;
+  --flag:#c3a1ee; --flag-bg:#2b2238; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:32px 64px;display:flex;flex-direction:column;gap:28px}
+h1{font-size:28px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:19px;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--accent);font-weight:600}
+.rule{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.rule p{margin:0 0 8px;max-width:62ch}
+.matrix{border-collapse:collapse;width:100%;font-size:14px}
+.matrix th,.matrix td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+.matrix th{color:var(--muted);font-weight:500;background:var(--bg)}
+.g{display:inline-block;padding:1px 9px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.g.필수{color:var(--must);background:var(--must-bg)} .g.준필수{color:var(--semi);background:var(--semi-bg)} .g.선택{color:var(--opt);background:var(--opt-bg)}
+.g.미확정{color:var(--muted);background:transparent;border:1px dashed var(--line)}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;display:flex;align-items:baseline;gap:8px}
+.stat b{font-size:22px;font-variant-numeric:tabular-nums}
+.check{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.box ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.box li{display:flex;flex-direction:column;gap:2px}
+.box .nm{font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.box .why{color:var(--muted);font-size:14px}
+.ask{border-left:3px solid var(--flag);padding-left:12px;margin-top:4px;font-size:14px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools button{font:inherit;font-size:14px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.tools button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.tools button:focus-visible,.tools input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tools input{font:inherit;font-size:14px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);min-width:0;flex:1 1 180px;max-width:280px}
+.cat{display:flex;flex-direction:column;gap:0}
+.cat h3{font-size:15px;margin:18px 0 8px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.row{display:grid;grid-template-columns:minmax(0,1.1fr) 150px minmax(0,1.2fr) minmax(0,1.2fr);gap:14px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-top:none}
+.row:first-of-type{border-top:1px solid var(--line);border-radius:10px 10px 0 0}
+.row:last-child{border-radius:0 0 10px 10px}
+.row:only-of-type{border-radius:10px}
+.head{background:transparent;border:none;color:var(--muted);font-size:12px;letter-spacing:.04em;padding-block:0 6px}
+.nm2{font-weight:600}
+.id{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.desc{color:var(--muted);font-size:13px}
+.grade{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.arrow{color:var(--muted);font-size:13px}
+.ev{font-size:13.5px;min-width:0}
+.yn{font-size:12px;font-weight:600;margin-right:6px}
+.yn.y{color:var(--accent)} .yn.n{color:var(--muted)}
+.tag{display:inline-block;font-size:12px;padding:0 8px;border-radius:999px;color:var(--flag);background:var(--flag-bg);font-weight:500}
+.src{font-size:13.5px;color:var(--muted)} .src ol{padding-left:20px;margin:6px 0 0;display:flex;flex-direction:column;gap:4px}
+.src code{font-family:var(--mono);font-size:12px;color:var(--fg)}
+.empty{color:var(--muted);padding:16px}
+@media (max-width:760px){
+  .rule{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr;gap:6px;border-top:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+  .head{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">기능상속 · 분류표 0.9 · 세부 기능 109개</div>
+    <h1>생활기능 등급표</h1>
+    <p class="sub">어떤 생활 기능이 사라졌을 때 얼마나 심각한지 정하는 기준입니다. 지자체 모드의 공백 심각도 계산에 쓰이고, 주민에게 대안을 찾아 주는 데는 쓰이지 않습니다.</p>
+  </header>
+
+  <section class="rule" aria-label="등급 계산 규칙">
+    <div>
+      <h2>등급은 두 가지 근거로 계산합니다</h2>
+      <p><b>① 공적 최소 보장</b> 법률이 국가·지자체에 제공·설치·지원 의무를 두거나, 정부의 국가 최저기준(기초생활인프라 국가적 최저기준, 농어촌서비스기준)에 들어 있으면 "예"입니다. 영업 허가만 정하는 법은 해당하지 않습니다.</p>
+      <p><b>② 주 1회 이상 이용</b> 그 기능을 쓰는 사람이 보통 주 1회 이상 쓴다는 것이 공식 통계나 제도 기준으로 확인될 때만 "예"입니다. 확인되지 않으면 "아니오"로 봅니다. 공백 심각도를 부풀리지 않기 위해서입니다.</p>
+      <p class="sub">현장 판단으로 이미 정한 5개(방앗간, 안경, 보청기, 농자재, 농기계 수리)는 그대로 둡니다.</p>
+    </div>
+    <div style="min-width:0;overflow-x:auto">
+      <table class="matrix">
+        <tr><th></th><th>② 예</th><th>② 아니오</th></tr>
+        <tr><th>① 예</th><td><span class="g 필수">필수</span></td><td><span class="g 준필수">준필수</span></td></tr>
+        <tr><th>① 아니오</th><td><span class="g 준필수">준필수</span></td><td><span class="g 선택">선택</span></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="stats" id="stats" aria-label="요약"></section>
+
+  <section aria-labelledby="chk">
+    <h2 id="chk">박헌준 님이 정한 것</h2>
+    <p class="sub">2026년 10월 13일에 확인받아 반영했습니다. 나머지는 근거대로 계산한 결과입니다.</p>
+    <div class="check" style="margin-top:12px">
+      <div class="box">
+        <h2>건강·안전 예외: 필수로 올림</h2>
+        <p class="why">자주 쓰지 않지만 끊기면 생명·건강·안전에 바로 위험이 생기는 기능입니다. 나중에 추가한 방문 간호에도 같은 기준을 적용했습니다. ②를 충족한 것으로 봅니다.</p>
+        <ul id="exc"></ul>
+        
+      </div>
+      <div class="box">
+        <h2>현장 확인</h2>
+        <p class="why">통계가 없던 기능의 이용 빈도를 돌봄 현장 경험으로 정했습니다. 경로식당·도시락 배달, 방문 목욕, 시내버스는 주 1회 이상으로, 나머지는 그보다 드물게 쓰는 것으로 봤습니다.</p>
+        <ul id="fld"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="all">
+    <h2 id="all">전체 등급</h2>
+    <div class="tools" role="group" aria-label="보기">
+      <button type="button" data-f="all" aria-pressed="true">전체</button>
+      <button type="button" data-f="chg" aria-pressed="false">바뀐 것</button>
+      <button type="button" data-f="chk" aria-pressed="false">직접 정한 것</button>
+      <input id="q" type="search" placeholder="세부 기능 이름으로 찾기" aria-label="세부 기능 이름으로 찾기">
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section class="src" aria-labelledby="srch">
+    <h2 id="srch">근거 자료</h2>
+    <ol id="srcs"></ol>
+  </section>
+</div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent), R=D.rows;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pill=g=>`<span class="g ${esc(g)}">${esc(g)}</span>`;
+const isChk=r=>r.note==='건강·안전 예외'||r.note==='현장 확인됨';
+const cnt=k=>R.filter(r=>r.new===k).length, chg=R.filter(r=>r.old!==r.new).length;
+document.getElementById('stats').innerHTML=
+  `<div class="stat">${pill('필수')}<b>${cnt('필수')}</b></div><div class="stat">${pill('준필수')}<b>${cnt('준필수')}</b></div><div class="stat">${pill('선택')}<b>${cnt('선택')}</b></div>`+
+  `<div class="stat"><span class="sub" style="margin:0">새로 정하거나 바뀐 것</span><b>${chg}</b></div><div class="stat"><span class="sub" style="margin:0">직접 정한 것</span><b>${R.filter(isChk).length}</b></div>`;
+const li=r=>`<li><span class="nm">${esc(r.name)} ${pill(r.new)}</span><span class="why">②: ${esc(r.bb)}</span></li>`;
+document.getElementById('exc').innerHTML=R.filter(r=>r.note==='건강·안전 예외').map(li).join('');
+document.getElementById('fld').innerHTML=R.filter(r=>r.note==='현장 확인됨').map(li).join('');
+const yn=(v,t)=>v===null?`<span class="ev">${esc(t)}</span>`:`<span class="ev"><span class="yn ${v?'y':'n'}">${v?'예':'아니오'}</span>${esc(t)}</span>`;
+let F='all';
+function draw(){
+  const q=document.getElementById('q').value.trim();
+  const rows=R.filter(r=>(F==='all'||(F==='chg'&&r.old!==r.new)||(F==='chk'&&isChk(r)))&&(!q||r.name.includes(q)||r.desc.includes(q)));
+  const cats=[...new Set(rows.map(r=>r.cat))];
+  document.getElementById('list').innerHTML=cats.length?cats.map(c=>`<div class="cat"><h3>${esc(c)}</h3>
+    <div class="row head"><span>세부 기능</span><span>이전 → 확정</span><span>① 공적 최소 보장</span><span>② 주 1회 이상 이용</span></div>
+    ${rows.filter(r=>r.cat===c).map(r=>`<div class="row">
+      <div style="min-width:0"><div class="nm2">${esc(r.name)} ${r.note?`<span class="tag">${esc(r.note)}</span>`:''}</div><div class="desc">${esc(r.pur)} · ${esc(r.desc)}</div><div class="id">${esc(r.id)}</div></div>
+      <div class="grade">${r.old===r.new?pill(r.new)+'<span class="arrow">그대로</span>':pill(r.old)+'<span class="arrow">→</span>'+pill(r.new)}</div>
+      ${yn(r.a,r.ab)}${yn(r.b,r.bb)}</div>`).join('')}</div>`).join(''):'<p class="empty">찾는 세부 기능이 없습니다.</p>';
+}
+document.querySelectorAll('.tools button').forEach(b=>b.addEventListener('click',()=>{F=b.dataset.f;document.querySelectorAll('.tools button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();}));
+document.getElementById('q').addEventListener('input',draw);
+document.getElementById('srcs').innerHTML=Object.entries(D.src).map(([k,v])=>`<li><code>${esc(k)}</code> ${esc(v)}</li>`).join('');
+draw();
+</script>

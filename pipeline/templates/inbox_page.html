@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시설 변화 알림함</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 담당 공무원용 알림함: 문 닫은 시설·새 시설 알림을 등급 순으로. 행정 문서처럼 차분하게, 등급만 색으로 구분 */
+:root{
+  --bg:#f3f6f5; --panel:#fff; --fg:#1d2624; --muted:#5c6b67; --line:#d7e0dd; --accent:#1f6f66;
+  --urgent:#a33a2c; --urgent-bg:#f7e4e0; --warn:#8a5a00; --warn-bg:#f8ecd2; --ask:#6b3fa0; --ask-bg:#efe6f8;
+  --good:#22704a; --good-bg:#e0f1e7; --info:#4d5d6b; --info-bg:#e5eaee;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121816; --panel:#1a2220; --fg:#e3ebe8; --muted:#9aaba6; --line:#2c3835; --accent:#5cc2b5;
+  --urgent:#f08e7f; --urgent-bg:#3a201c; --warn:#e8b75c; --warn-bg:#352a12; --ask:#c3a1ee; --ask-bg:#2b2238;
+  --good:#7fd3a4; --good-bg:#183025; --info:#a9b8c5; --info-bg:#232c33; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --panel:#1a2220; --fg:#e3ebe8; --muted:#9aaba6; --line:#2c3835; --accent:#5cc2b5;
+  --urgent:#f08e7f; --urgent-bg:#3a201c; --warn:#e8b75c; --warn-bg:#352a12; --ask:#c3a1ee; --ask-bg:#2b2238;
+  --good:#7fd3a4; --good-bg:#183025; --info:#a9b8c5; --info-bg:#232c33; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+.sum{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.sum .k{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:96px}
+.sum .k b{display:block;font-size:20px}
+.sum .k span{font-size:12.5px;color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px;position:sticky;top:0;z-index:2}
+select,input[type=search]{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+input[type=search]{flex:1;min-width:140px}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.chip[aria-pressed=true]{color:var(--fg);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:0 0 10px;overflow:hidden}
+.card>summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start}
+.card>summary::-webkit-details-marker{display:none}
+.lv{font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;white-space:nowrap;margin-top:2px}
+.lv.긴급{color:var(--urgent);background:var(--urgent-bg)} .lv.주의{color:var(--warn);background:var(--warn-bg)}
+.lv.확인{color:var(--ask);background:var(--ask-bg)} .lv.좋은{color:var(--good);background:var(--good-bg)} .lv.참고{color:var(--info);background:var(--info-bg)}
+.t{font-weight:600}
+.meta{grid-column:2;color:var(--muted);font-size:13px}
+.body{border-top:1px solid var(--line);padding:12px 14px 14px}
+.fn{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.fn h3{font-size:15px;margin:0 0 6px}
+.g{font-size:12px;border-radius:5px;padding:1px 6px;margin-left:6px;background:var(--info-bg);color:var(--info)}
+.g.필수{background:var(--urgent-bg);color:var(--urgent)} .g.준필수{background:var(--warn-bg);color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--muted);font-size:13px}
+ol{margin:4px 0 4px 18px;padding:0}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.empty{color:var(--muted);padding:30px;text-align:center}
+.done{opacity:.6}
+@media (max-width:560px){.card>summary{grid-template-columns:1fr}.meta{grid-column:1}}
+</style></head><body><div class="wrap">
+<h1>시설 변화 알림함</h1>
+<p class="sub" id="sub"></p>
+<div class="sum" id="sum"></div>
+<div class="bar">
+  <select id="gu" aria-label="구·군"><option value="">대구 전체</option></select>
+  <span id="lvs"></span>
+  <input type="search" id="q" placeholder="상호·행정동·기능으로 찾기">
+</div>
+<div id="list"></div>
+<p class="note">주민 수는 행정동 인구(2026-09-30)를 그 동의 사람이 사는 곳(가게·버스 정류장 250m 안)에 고르게 나눈 추정입니다. 걷는 시간은 걷는 길 지도로 잰 보통 걸음(1.0m/s) 기준입니다.
+'같은 묶음'은 사람이 확인한 서로 대체할 수 있는 종류의 범위이고, '기능 전체'는 그 일을 하는 모든 곳입니다.</p>
+</div>
+<script>
+const D = __DATA__;
+const LV = ["긴급","주의","확인 요청","좋은 소식","참고"];
+const GU = ["중구","동구","서구","남구","북구","수성구","달서구","달성군","군위군"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = n => (n ?? 0).toLocaleString("ko-KR");
+const on = new Set(["긴급","주의","확인 요청","좋은 소식"]);
+document.getElementById("sub").textContent = `${D.made} 기준 · 인허가 자료 ${D.base} · 알림 ${D.notices.length}건`;
+const g = document.getElementById("gu"); GU.forEach(x => g.insertAdjacentHTML("beforeend", `<option>${x}</option>`));
+const lvs = document.getElementById("lvs");
+LV.forEach(x => { const b = document.createElement("button"); b.className = "chip"; b.textContent = x; b.setAttribute("aria-pressed", on.has(x));
+  b.onclick = () => { on.has(x) ? on.delete(x) : on.add(x); b.setAttribute("aria-pressed", on.has(x)); draw(); }; lvs.appendChild(b); });
+g.onchange = draw; document.getElementById("q").oninput = draw;
+function impRow(lab, x){ return x ? `<tr><td>${esc(lab)}</td><td class="n">${num(x.공백변화주민)}명</td><td class="n">${num(x.공백변화주민_65세이상)}명</td><td class="n">${x.시설수 ?? "-"}곳</td></tr>` : ""; }
+function fn(f, closed){
+  const i = f.영향, gw = closed ? "갈 곳이 없어지는 주민" : "갈 곳이 새로 생긴 주민";
+  let h = `<div class="fn"><h3>${esc(f.이름)}${f.세부종류 ? " — " + esc(f.세부종류) : ""}${f.의도 ? " (" + esc(f.의도) + ")" : ""}<span class="g ${esc(f.등급)}">${esc(f.등급)}</span></h3>`;
+  if (f.판정근거?.length) h += `<div class="muted">근거: ${esc(f.판정근거.join("; "))}</div>`;
+  if (i){
+    h += `<div>이 시설이 가장 ${closed ? "가까웠던" : "가까워진"} 주민 약 <b>${num(i.가까운주민)}명</b> (65세 이상 ${num(i.가까운주민_65세이상)}명)`;
+    if (i.걷는시간_전_중앙값 != null) h += ` · 같은 종류까지 걷는 시간(중앙값) ${i.걷는시간_전_중앙값}분 → ${i.걷는시간_후_중앙값 > 100 ? "6km 넘음" : i.걷는시간_후_중앙값 + "분"}`;
+    h += `</div><table><tr><th>걸어서 ${f.기준_분}분 안에 ${gw}</th><th class="n">주민</th><th class="n">65세 이상</th><th class="n">남은 곳</th></tr>`;
+    h += impRow(f.세부종류 ? "같은 종류" : f.이름 + " 전체", i);
+    if (f.세부종류 && f.영향_묶음 && !f.영향_묶음.같은범위) h += impRow(`같은 묶음(${f.묶음})`, f.영향_묶음);
+    if (f.세부종류 && f.영향_기능전체 && !f.영향_기능전체.같은범위) h += impRow(`${f.이름} 전체`, f.영향_기능전체);
+    h += `</table><div class="muted">기준: ${esc(f.기준근거)}</div>`;
+    const ds = i.행정동.slice(0, 6);
+    if (ds.length) h += `<div class="muted">행정동별(이 시설이 가장 가까운 주민): ${ds.map(d => `${esc(d.구군)} ${esc(d.행정동)} ${num(d.주민)}명${d.공백변화 ? `(공백 ${num(d.공백변화)}명)` : ""}`).join(", ")}</div>`;
+  } else if (closed) h += `<div class="muted">주민에게 안내하던 시설이 아니어서 영향은 계산하지 않았습니다.</div>`;
+  if (f.대체시설?.length){
+    h += `<div style="margin-top:6px">가까운 대체 시설 (같은 종류)</div><ol>` + f.대체시설.map(c => `<li>${esc(c.상호)} <span class="muted">(${esc(c.업종)})</span> — ${c.걷는거리_m != null ? `걸어서 약 ${Math.max(1, Math.round(c.걷는시간_분))}분 (${num(c.걷는거리_m)}m)` : `직선 ${num(c.직선거리_m)}m, 걸어가기엔 멂`}${c.전화 ? " · " + esc(c.전화) : ""}${c.확인필요 ? " · 하는지 확인 필요" : ""}</li>`).join("") + `</ol>`;
+  } else if (closed) h += `<div>가까운 대체 시설: 없음</div>`;
+  const big = Math.max(...[f.영향, f.영향_묶음, f.영향_기능전체].map(x => x?.공백변화주민 || 0));
+  if (closed && big >= 1 && f.이용방법?.length) h += `<div class="muted">이 일은 ${esc(f.이용방법.join(", "))} 방식으로도 이용할 수 있어, 공백 지역에는 이런 방식을 검토할 수 있습니다.</div>`;
+  return h + `</div>`;
+}
+function card(n){
+  const s = n.시설, closed = n.종류 === "문 닫음", cls = n.등급.split(" ")[0];
+  const title = n.제목.replace(/^\[[^\]]+\]\s*/, "");
+  let h = `<details class="card${n.처리 ? " done" : ""}"><summary><span class="lv ${cls}">${esc(n.등급)}</span><span class="t">${esc(title)}</span>
+    <span class="meta">${esc(s.업종)} · ${esc(s.주소 || "주소 없음")} · ${esc(s.날짜 || "")} · ${esc(s.출처)}${n.처리 ? " · " + esc(n.처리) : ""}</span></summary><div class="body">`;
+  if (closed && !s.주민안내대상이었음) h += `<p class="muted">운영 확인이 안 돼 주민에게 대안으로 안내하지 않던 곳이라, 주민 안내 결과는 달라지지 않습니다.</p>`;
+  (n.같은자리 || []).forEach(o => h += `<p class="muted">같은 건물: '${esc(o.상호)}'(${esc(o.업종)}) ${closed ? "새로 문을 엶" : "문을 닫음"} ${esc(o.날짜 || "")}</p>`);
+  if (!n.기능.length) h += `<p class="muted">자료로 확인된 생활기능이 없습니다 (업종만으로는 하는 일이 가게마다 달라 판정하지 않음).</p>`;
+  h += n.기능.map(f => fn(f, closed)).join("");
+  if (n.확인안된기능?.length) h += `<p class="muted">했을 수도 있지만 자료로 확인되지 않은 일: ${esc(n.확인안된기능.join(", "))}</p>`;
+  if (s.전화) h += `<p class="muted">시설 전화: ${esc(s.전화)}</p>`;
+  return h + `</div></details>`;
+}
+function draw(){
+  const gu = g.value, q = document.getElementById("q").value.trim();
+  const xs = D.notices.filter(n => on.has(n.등급) && (!gu || n.구군.includes(gu)) && (!q || (n.제목 + n.기능.map(f => f.이름 + (f.세부종류 || "")).join(" ") + (n.시설.행정동 || "")).includes(q)));
+  xs.sort((a, b) => LV.indexOf(a.등급) - LV.indexOf(b.등급) || (b.만든때 > a.만든때 ? 1 : -1));
+  document.getElementById("list").innerHTML = xs.length ? xs.map(card).join("") : `<div class="empty">조건에 맞는 알림이 없습니다.</div>`;
+  const all = D.notices.filter(n => !gu || n.구군.includes(gu)), c = {};
+  all.forEach(n => c[n.등급] = (c[n.등급] || 0) + 1);
+  document.getElementById("sum").innerHTML = LV.map(k => `<div class="k"><b>${c[k] || 0}</b><span>${k}</span></div>`).join("");
+}
+draw();
+</script></body></html>

@@ -1,0 +1,1011 @@
+:root{
+  --bg:#F1F4F2; --paper:#FFFFFF; --ink:#1D2B2A; --muted:#5D6B69; --line:#D9E0DD;
+  --green:#0E7A5F; --green-soft:#E3F1EC; --stop:#F5B800; --closed:#8A9491;
+  --check-bg:#FFF3CF; --check-ink:#7A5300; --focus:#0E7A5F;
+  --r-s:6px; --r-m:10px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+/* 줄바꿈 (10/21): 우리말 낱말·숫자+단위가 중간에서 끊기지 않게(어절 단위), 아주 긴 이름만 넘칠 때 끊음 */
+body{word-break:keep-all;overflow-wrap:break-word}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* 머리 */
+.top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--paper);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand-mark{width:14px;height:14px;border-radius:50%;background:var(--green);position:relative;align-self:center}
+.brand-mark::after{content:"";position:absolute;top:-2px;right:-3px;width:7px;height:7px;border-radius:50%;background:#D93025;border:1.5px solid #fff}
+.brand-name{font-weight:600;font-size:19px;letter-spacing:-.01em}
+.brand-sub{color:var(--muted);font-size:14px}
+.modes{display:flex;background:var(--bg);border-radius:999px;padding:3px}
+.modes button{border:0;background:transparent;padding:6px 18px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:500}
+.modes button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(29,43,42,.12)}
+
+/* 배치 */
+.layout{display:grid;grid-template-columns:420px 1fr;height:calc(100% - 56px)}
+.panel{background:var(--paper);border-right:1px solid var(--line);overflow:auto;display:flex;flex-direction:column}
+.panel>section{display:flex;flex-direction:column;min-height:100%}
+.mapwrap{position:relative}
+#map{position:absolute;inset:0;background:#E8ECEA}
+
+/* 시작 */
+.start{padding:28px 24px}
+h1{font-size:23px;line-height:1.35;margin:0 0 8px;font-weight:600;letter-spacing:-.015em}
+h2{font-size:16px;margin:0 0 4px;font-weight:600}
+.lead{margin:0 0 18px;color:var(--muted)}
+.field input,.field select{width:100%;border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;background:var(--paper)}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field-inline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px}
+.field-inline select{width:auto;padding:7px 10px}
+.sugg{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.sugg li+li{border-top:1px solid var(--line)}
+.sugg button{display:block;width:100%;text-align:left;border:0;background:var(--paper);padding:10px 14px;cursor:pointer}
+.sugg button:hover{background:var(--bg)}
+.sugg .nm{font-weight:500}
+.sugg .meta{display:block;color:var(--muted);font-size:14px}
+.tag-closed{display:inline-block;margin-left:6px;font-size:13px;color:#B3261E;background:#FDECEA;border-radius:999px;padding:0 8px;vertical-align:1px;font-weight:500}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;margin:22px 0 14px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.hint{color:var(--muted);font-size:14px;margin:6px 0 0}
+.recent{margin-top:32px;padding-top:20px;border-top:1px solid var(--line)}
+
+.btn-line{width:100%;border:1px solid var(--ink);background:var(--paper);border-radius:var(--r-m);padding:11px 14px;cursor:pointer;font-weight:500}
+.btn-line:hover{background:var(--bg)}
+.btn-solid{border:0;background:var(--green);color:#fff;border-radius:var(--r-m);padding:0 18px;cursor:pointer;font-weight:500}
+.btn-solid:hover{background:#0B6650}
+.btn-text{border:0;background:none;color:var(--green);cursor:pointer;padding:4px 0;font-weight:500}
+
+/* 대화 */
+.chat{flex:1;display:flex;flex-direction:column;min-height:0;height:100%}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line)}
+.chat-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:12px}
+.originbar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:8px 20px;background:var(--bg);border-bottom:1px solid var(--line);font-size:14px}
+.o-label{color:var(--muted)}
+.o-start{color:var(--muted)}
+.o-start::before{content:"·";margin:0 6px}
+.alt-from{font-size:13px}
+.o-acts{margin-left:auto;display:flex;gap:12px}
+.o-acts .btn-text{font-size:14px}
+.maptoggle{position:absolute;top:12px;right:12px;z-index:500;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:14px;cursor:pointer;color:var(--muted)}
+.maptoggle[aria-pressed="true"]{border-color:#2F6FDB;color:#2F6FDB;font-weight:500}
+.pubhint{position:absolute;top:52px;right:12px;z-index:500;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:var(--r-s);padding:4px 10px;font-size:13px;color:var(--muted)}
+.pubpin{width:24px;height:24px;border-radius:50%;background:#2F6FDB;color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(29,43,42,.35)}
+.pubpin.dim{background:#8FA9D9}
+.lg-pub{width:16px;height:16px;border-radius:50%;background:#2F6FDB;color:#fff;font-style:normal;font-size:9px;font-weight:600;display:grid;place-items:center}
+.pp-tel{display:inline-block;margin-top:6px;color:var(--green);font-weight:500;text-decoration:none}
+.log{flex:1;overflow:auto;padding:18px 20px 8px}
+.msg{margin:0 0 12px;max-width:100%}
+.msg p{margin:0 0 6px}
+.msg p:last-child{margin-bottom:0}
+.msg.bot{color:var(--ink)}
+.msg.me{margin-left:auto;width:fit-content;max-width:85%;background:var(--green-soft);border-radius:var(--r-m) var(--r-m) 2px var(--r-m);padding:8px 12px}
+.msg.note{background:var(--check-bg);color:var(--check-ink);border-radius:var(--r-s);padding:8px 12px;font-size:15px}
+.blogbox{margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:var(--r-s);font-size:14.5px}
+.blog-head{font-weight:500;margin-bottom:4px}
+.blog-list{list-style:none;margin:0;padding:0}
+.blog-list li{padding:5px 0;border-top:1px solid var(--line)}
+.blog-list li:first-child{border-top:0}
+.blog-list a{color:var(--ink);text-decoration:none;display:block}
+.blog-list a:hover{color:var(--green);text-decoration:underline}
+.blog-meta{display:block;color:var(--muted);font-size:13px}
+.blog-foot{color:var(--muted);font-size:12.5px;margin-top:6px}
+.blog-count{color:var(--muted)}
+.src{display:flex;flex-direction:column;gap:2px;font-size:14px;border-left:3px solid var(--line);padding-left:10px}
+.src-label{color:var(--muted);font-size:13px}
+.src a{color:var(--green);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src a:hover{text-decoration:underline}
+.opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 10px}
+.opts button{border:1px solid var(--green);color:var(--green);background:var(--paper);border-radius:999px;padding:7px 14px;cursor:pointer;text-align:left}
+.opts button:hover{background:var(--green-soft)}
+.opts a.call{border:0;background:var(--green);color:#fff;border-radius:999px;padding:8px 16px;text-decoration:none;font-weight:500}
+.say{display:flex;align-items:flex-end;gap:8px;padding:12px 20px 16px;border-top:1px solid var(--line)}
+.say button{flex:none;white-space:nowrap}
+.say textarea{flex:1;min-width:0;border:1px solid var(--line);border-radius:var(--r-m);padding:10px 14px;font:inherit;font-size:16px;line-height:1.5;resize:none;overflow-y:hidden;background:#fff;color:inherit;display:block}
+.say textarea:focus{border-color:var(--green);outline:0}
+.say button{height:44px}
+
+/* 대안 카드 */
+.alt{display:grid;grid-template-columns:36px 1fr;gap:4px 12px;padding:14px 0;border-top:1px solid var(--line);cursor:pointer}
+.alt:last-of-type{border-bottom:1px solid var(--line)}
+.alt.on{background:linear-gradient(90deg,var(--green-soft),transparent 80%)}
+.alt.sel{background:linear-gradient(90deg,var(--green-soft),transparent 80%)}
+.alt{cursor:pointer}
+.rank{grid-row:span 5;width:32px;height:32px;border-radius:7px;background:var(--stop);color:var(--ink);font-weight:600;display:grid;place-items:center;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.alt-name{font-weight:600}
+.alt-meta{color:var(--muted);font-size:14px}
+.alt-lines{margin:4px 0 0;padding:0;list-style:none;font-size:14.5px;color:var(--ink)}
+.alt-lines li{margin:1px 0}
+.alt-lines .chk{background:var(--check-bg);color:var(--check-ink);border-radius:4px;padding:0 6px}
+.alt-actions{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:14.5px}
+.alt-actions a{white-space:nowrap}
+.alt-actions a{color:var(--green);font-weight:500;text-decoration:none}
+.alt-actions a:hover{text-decoration:underline}
+.sure{display:inline-block;font-size:13px;border-radius:4px;padding:0 6px;margin-left:6px;vertical-align:1px;background:var(--bg);color:var(--muted)}
+.sure.check{background:var(--check-bg);color:var(--check-ink)}
+
+/* 지자체 */
+#gov>*{flex-shrink:0}   /* 목록이 길어도 위의 숫자 칸이 눌려 사라지지 않게 */
+.gov-head{padding:24px 24px 8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.gov-head h1{margin:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:12px 24px;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.stats div{background:var(--paper);padding:10px 14px}
+.stats dt{color:var(--muted);font-size:13.5px}
+.stats dd{margin:0;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.subtabs{display:flex;gap:20px;padding:0 24px;border-bottom:1px solid var(--line);margin-top:8px}
+.subtabs button{border:0;background:none;padding:10px 0;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.govlist{list-style:none;margin:0;padding:0 24px 24px}
+.govlist li{border-bottom:1px solid var(--line)}
+.govlist button{display:block;width:100%;text-align:left;border:0;background:none;padding:12px 0;cursor:pointer}
+.govlist button:hover .g-name{text-decoration:underline}
+.g-name{font-weight:600}
+.g-meta{display:block;color:var(--muted);font-size:14px}
+.g-now{display:block;font-size:14.5px;margin-top:2px}
+.g-now.none{color:var(--muted)}
+.chip{display:inline-block;font-size:12.5px;border-radius:4px;padding:0 6px;margin-right:6px;vertical-align:1px;font-weight:500}
+.chip.ok{background:var(--green-soft);color:var(--green)}
+.chip.cut{background:var(--bg);color:var(--muted)}
+.chip.urgent{background:#FCE4E1;color:#9A2B1E}
+.chip.mid{background:var(--check-bg);color:var(--check-ink)}
+.g-body{white-space:pre-wrap;font-size:14px;color:var(--ink);background:var(--bg);border-radius:var(--r-s);padding:10px 12px;margin:0 0 12px}
+.empty{color:var(--muted);padding:20px 0}
+
+/* 지도 표시 */
+.legend{position:absolute;left:12px;bottom:26px;z-index:500;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:var(--r-m);padding:8px 12px;display:flex;gap:14px;font-size:13.5px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.lg{display:inline-block;width:14px;height:14px;border-radius:50%}
+.lg-closed{width:12px;height:15px;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;background:#D93025}
+.lg-now{width:12px;height:15px;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;background:var(--green);position:relative}
+.lg-now::after{content:"";position:absolute;top:-2px;right:-3px;width:6px;height:6px;border-radius:50%;background:#D93025;border:1px solid #fff}
+.lg-rank{width:16px;height:16px;border-radius:4px;background:var(--stop);color:var(--ink);font-style:normal;font-size:11px;font-weight:600;display:grid;place-items:center}
+.pin{border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600}
+.mpin{position:relative;width:30px;height:38px;filter:drop-shadow(0 1px 2px rgba(29,43,42,.35));transform-origin:50% 100%;transition:transform .12s}
+.mpin svg{display:block}
+.z-far .mpin{transform:scale(.72)}
+#map.has-result .cl{opacity:.16;filter:grayscale(.6)}
+#map.has-result .cl:hover{opacity:1}
+.leaflet-marker-icon:hover .mpin{transform:scale(1.12)}
+.pin-count{position:absolute;top:-5px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#fff;color:#D93025;border:1.5px solid #D93025;font-size:11px;font-weight:600;line-height:14px;text-align:center}
+.pin-dot{position:absolute;top:0;right:1px;width:9px;height:9px;border-radius:50%;background:#D93025;border:1.5px solid #fff}
+.pin-origin{width:22px;height:22px;border:2.5px dashed var(--ink);background:#fff}
+.pin-rank{width:28px;height:28px;border-radius:7px;background:var(--stop);color:var(--ink);font-size:14px;border:2px solid #fff;box-shadow:0 1px 3px rgba(29,43,42,.35)}
+.pin-rank.on{transform:scale(1.18);box-shadow:0 0 0 3px var(--green)}
+.leaflet-container{font:inherit}
+.leaflet-tile-pane{filter:saturate(.3) brightness(1.05) contrast(.92)}
+.leaflet-popup-content-wrapper{border-radius:var(--r-m);box-shadow:0 4px 18px rgba(29,43,42,.18)}
+.leaflet-popup-content{margin:14px 16px;font-size:15px;line-height:1.55;min-width:220px}
+.pp-sec+.pp-sec{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.pp-label{font-size:13px;color:var(--muted);margin-bottom:2px}
+.pp-name{font-weight:600}
+.pp-meta{color:var(--muted);font-size:14px}
+.pp-old .pp-name{color:var(--muted);font-weight:500}
+.pp-btn{margin-top:8px;border:0;background:var(--green);color:#fff;border-radius:var(--r-s);padding:7px 12px;cursor:pointer;font-weight:500;width:100%}
+.pp-btn:hover{background:#0B6650}
+.pp-head{font-weight:600;margin-bottom:6px}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-rows:42vh auto;height:auto;min-height:calc(100% - 56px)}
+  .mapwrap{grid-row:1;height:42vh}
+  .panel{grid-row:2;border-right:0;overflow:visible}
+  .brand-sub{display:none}
+  .top{padding:0 16px}
+  .start,.gov-head{padding-left:16px;padding-right:16px}
+  .stats{margin:12px 16px}.subtabs,.govlist{padding-left:16px;padding-right:16px}
+  .log,.opts,.say,.chat-head{padding-left:16px;padding-right:16px}
+  .chat{height:auto}.log{max-height:none}
+  .legend{flex-wrap:wrap;gap:8px;right:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 문 닫은 곳 종류 고르기 (지도 위) */
+.kindbar{position:absolute;top:12px;left:56px;right:190px;z-index:500;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:2px;pointer-events:none}
+.kindbar>*{pointer-events:auto}
+.kindbar::-webkit-scrollbar{display:none}
+.kb-label{flex:none;font-size:13.5px;color:var(--muted);background:rgba(255,255,255,.95);border-radius:999px;padding:5px 10px;border:1px solid var(--line)}
+.kb{flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.kb-n{font-size:12.5px;color:var(--muted)}
+.kb[aria-pressed="true"]{border-color:#D93025;background:#D93025;color:#fff;font-weight:500}
+.kb[aria-pressed="true"] .kb-n{color:#fff}
+.kb:focus-visible{outline:2px solid #D93025;outline-offset:2px}
+.govkind{margin:4px 24px 0;font-size:13.5px;color:var(--muted)}
+@media (max-width:720px){.kindbar{right:12px;top:52px;left:12px;flex-wrap:nowrap;pointer-events:auto;overflow-x:auto;scrollbar-width:none}.kindbar::-webkit-scrollbar{display:none}.pubhint{top:94px}.leaflet-control-zoom{display:none}.govkind{margin:4px 16px 0}}
+.pubhint{pointer-events:none}
+
+/* 찾기 전에 한 번에 여쭙는 고르기 (이동·누구와·언제) */
+.msg.ask{display:flex;flex-direction:column;gap:12px;background:none;padding:2px 0}
+.ask-q{font-size:15px;font-weight:500;margin:0 0 6px}
+.ask-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ask-chip{display:inline-flex;flex-direction:column;align-items:flex-start;border:1px solid var(--line);background:#fff;border-radius:12px;padding:7px 14px;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);cursor:pointer;text-align:left}
+.ask-sub{font-size:12.5px;color:var(--muted)}
+.ask-chip[aria-pressed="true"] .ask-sub{color:rgba(255,255,255,.85)}
+.ask-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff;font-weight:500}
+.ask-chip:focus-visible,.ask-skip:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.ask-chip:disabled,.ask-skip:disabled{cursor:default;opacity:.7}
+.ask-skip{align-self:flex-start;border:none;background:none;padding:2px 0;font:inherit;font-size:14px;color:var(--muted);text-decoration:underline;cursor:pointer}
+
+/* 가는 길 그림 띠 (네이버·카카오 지도 대중교통 요약처럼) */
+.rs{margin:6px 0 2px}
+.rs-bar{display:flex;align-items:stretch;gap:3px;height:30px}
+.rs-seg{display:flex;align-items:center;gap:4px;min-width:0;border-radius:999px;padding:0 9px;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden}
+.rs-i{display:inline-flex;width:16px;height:16px;flex:none}.rs-i svg{width:16px;height:16px;fill:currentColor}
+.rs-walk{background:#EEF1F0;color:var(--muted);flex:none!important}
+.rs-ride{background:var(--c);color:#fff;flex:1 1 auto!important;min-width:0}
+.rs-no{background:rgba(255,255,255,.22);border-radius:4px;padding:0 5px;font-variant-numeric:tabular-nums}
+.rs-car{background:var(--ink);color:#fff}
+.rs-transfer{border:1.5px dashed var(--line);color:var(--muted);background:#fff}
+.rs-sub{font-weight:400;opacity:.8;margin-left:2px}
+.rs-cap{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-top:5px;font-size:13px;color:var(--muted)}
+.rs-arrow{color:var(--line)}
+.rs-dot::before{content:"·";margin-right:6px;color:var(--line)}
+/* 지도의 승차·하차 표시 */
+.stoppin{position:relative;transform:translate(-50%,-50%)}
+.stoppin::before{content:"";display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--c);box-sizing:border-box}
+.stoppin span{position:absolute;left:12px;top:-10px;background:var(--c);color:#fff;font-size:11.5px;font-weight:600;border-radius:4px;padding:0 5px;white-space:nowrap}
+.alt>*{min-width:0}
+.rs-bar{min-width:0}
+.lg-walkline{width:18px;height:0;border-top:3px dotted #5D6B69;border-radius:0;background:none}
+.lg-busline{width:18px;height:4px;border-radius:2px;background:#2F6FDB}
+
+/* 카드 몸통 (10/16 정리: 근거·출처 줄 없이 필요한 것만) */
+.alt-body{font-size:14.5px}
+.hours{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.hs{border-radius:999px;padding:1px 9px;font-size:13px;font-weight:600}
+.hs.open{background:#E3F1EC;color:#0E7A5F}.hs.closed{background:#F2F2F2;color:#6B6B6B}
+.ht{font-size:14px}
+.hw{font-size:12.5px;color:var(--muted);margin-top:1px}
+.addr{color:var(--muted);margin-top:6px}
+.note{color:var(--muted);font-size:13.5px}
+.ask-tip{margin-top:6px;font-size:13.5px;background:var(--check-bg);color:var(--check-ink);border-radius:6px;padding:3px 8px;display:inline-block}
+.alt-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.alt-actions .act{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;color:var(--green);text-decoration:none;background:#fff}
+.alt-actions .act:hover{border-color:var(--green)}
+.o-label{color:var(--muted);margin-left:4px}
+
+/* 첫 화면: 하나의 입력창 (네이버·카카오 지도 검색창처럼) */
+.ask-box{display:flex;align-items:flex-end;gap:6px;border:1.5px solid var(--green);border-radius:12px;background:#fff;padding:4px 4px 4px 14px;box-shadow:0 2px 8px rgba(14,122,95,.08)}
+.ask-box textarea{flex:1;border:0;outline:0;font:inherit;font-size:16px;line-height:1.5;padding:8px 0;background:transparent;min-width:0;resize:none;overflow-y:hidden;display:block;color:inherit}
+.ask-go{flex:none;width:40px;height:40px;border:0;border-radius:9px;background:var(--green);color:#fff;display:grid;place-items:center;cursor:pointer}
+.ask-go svg{width:20px;height:20px}
+.ask-ex{margin:8px 2px 0;font-size:13.5px;color:var(--muted)}
+.nearby{margin-top:22px}
+.nearby h2{font-size:15px;margin:0 0 6px;font-weight:600}
+.nearby-list{list-style:none;margin:0;padding:0}
+.nearby-list li{border-top:1px solid var(--line)}
+.nearby-list button{display:flex;flex-direction:column;align-items:flex-start;width:100%;border:0;background:none;padding:10px 2px;cursor:pointer;text-align:left}
+.nearby-list button:hover .nb-name{color:var(--green)}
+.nb-name{font-weight:500}.nb-meta{font-size:13.5px;color:var(--muted)}
+.nearby-list .empty{padding:10px 2px;color:var(--muted);font-size:14px}
+/* 에이전트가 일하는 모습 (클로드·GPT처럼: 하는 일 단계 + 흘러나오는 답) */
+.msg.live{background:none;padding:0}
+.steps{list-style:none;margin:0 0 4px;padding:0;font-size:13.5px;color:var(--muted)}
+.step{display:flex;align-items:center;gap:7px;line-height:1.7}
+.step::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--line)}
+.step.now::before{background:var(--green);animation:pulse 1s ease-in-out infinite}
+.step.ok::before{width:9px;height:5px;border-radius:0;background:none;border-left:2px solid var(--green);border-bottom:2px solid var(--green);transform:rotate(-45deg) translate(1px,-1px)}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.live-text{margin:4px 0 0;white-space:pre-wrap}
+.live-text:empty{display:none}
+.msg.worked{display:flex;gap:6px;align-items:center;background:none;padding:0;font-size:12.5px;color:var(--muted)}
+.wk-i{color:var(--green);font-weight:700}
+/* 지도의 장소 표시: 복지시설(보라)·공공시설(파랑), 시설마다 그림 */
+.poi{--c:#2F6FDB;position:relative;transform:translate(-13px,-13px);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.poi.welfare{--c:#7A4FD3}
+.poi-i{width:26px;height:26px;border-radius:50%;background:var(--c);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 5px rgba(20,30,60,.28)}
+.poi-i svg{width:15px;height:15px}
+.poi-n{font-size:12px;font-weight:600;color:var(--c);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}
+.poi.dim .poi-i{opacity:.55}
+#map:not(.z-poi) .poi-n{display:none}
+#map.z-poi .poi:hover .poi-i{transform:scale(1.1)}
+.lg-welfare,.lg-public{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.lg-welfare{background:#7A4FD3}.lg-public{background:#2F6FDB}
+@media (prefers-reduced-motion:reduce){.step.now::before{animation:none}}
+
+/* 고른 까닭 (그림 칩) */
+.why{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 0}
+.why span{font-size:12.5px;border-radius:999px;padding:1px 8px;background:#EEF4FF;color:#2350A8}
+.why span.warn{background:var(--check-bg);color:var(--check-ink)}
+
+/* ── 지자체: 에이전트 점검 보고 (10/16) ── */
+:root{--urgent:#C5221F;--urgent-bg:#FCE8E6;--attn:#A35200;--attn-bg:#FEF0DB}
+.gov-head{display:block;padding:24px 24px 4px}
+.gv-date{margin:2px 0 0;color:var(--muted);font-size:14px}
+.btn-chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 14px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-chip:hover{background:var(--bg)}
+.btn-chip:disabled{cursor:default;color:var(--muted)}
+.btn-chip.solid{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn-chip.solid:hover{background:#2E403E}
+/* 에이전트가 한 일 */
+.gv-run{margin:12px 24px 4px;padding:12px 14px;border-radius:var(--r-m);background:var(--bg)}
+.gv-run-head{display:flex;align-items:flex-start;gap:10px}
+.gv-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--green);margin-top:7px;box-shadow:0 0 0 3px var(--green-soft)}
+.gv-dot.live{animation:gvpulse 1.2s ease-in-out infinite}
+@keyframes gvpulse{50%{box-shadow:0 0 0 6px rgba(14,122,95,.12)}}
+@media (prefers-reduced-motion:reduce){.gv-dot.live{animation:none}}
+.gv-run-t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.45}
+.gv-run-t b{font-weight:600;font-size:15px}
+.gv-run-t span{color:var(--muted);font-size:13.5px}
+.gv-log{font-size:13.5px;margin:6px 0 0 20px}
+.gv-steps{list-style:none;margin:8px 0 0 20px;padding:0;display:none}
+.gv-steps.open{display:block}
+.gv-steps li{position:relative;padding:3px 0 3px 22px;font-size:14px;display:flex;flex-wrap:wrap;gap:0 8px}
+.gv-steps li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:14px;border-radius:50%;background:var(--green);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='7'/%3E%3C/svg%3E")}
+.gv-steps li.st-done::after{content:"";position:absolute;left:4px;top:10px;width:6px;height:3.5px;border:solid #fff;border-width:0 0 2px 2px;transform:rotate(-45deg)}
+.gv-steps li.st-doing::before{background:none;border:2px solid var(--green);border-right-color:transparent;width:10px;height:10px;-webkit-mask:none;animation:gvspin .8s linear infinite}
+@keyframes gvspin{to{transform:rotate(360deg)}}
+.gv-steps li.st-fail::before{background:var(--urgent)}
+.gv-steps li.st-wait::before{background:var(--closed)}
+.gv-step-n{font-weight:500}
+.gv-step-t{color:var(--muted)}
+/* 구·군 */
+.gv-gus{display:flex;flex-wrap:wrap;gap:6px;padding:12px 24px 4px}
+.gv-gus::-webkit-scrollbar{display:none}
+.gv-gu{flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer}
+.gv-gu.calm{color:var(--muted)}
+.gv-gu[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.gv-gu .n{min-width:19px;height:19px;border-radius:999px;font-size:12px;font-weight:600;display:inline-grid;place-items:center;padding:0 5px;color:#fff}
+.gv-gu .n.urgent{background:var(--urgent)}.gv-gu .n.attn{background:var(--attn)}.gv-gu .n.watch{background:#E8EEF5;color:#3D5A80}
+.gv-sum{margin:10px 24px 6px;font-size:15px;line-height:1.6}
+/* 보고 항목 */
+.gv-items{list-style:none;margin:6px 0 0;padding:0 24px}
+.gv-item{border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px;margin-bottom:12px;background:var(--paper);border-left:4px solid var(--line);transition:box-shadow .3s}
+.gv-item.lv-urgent{border-left-color:var(--urgent)}.gv-item.lv-attn{border-left-color:var(--attn)}
+.gv-item.done{opacity:.62;border-left-color:var(--line)}
+.gv-item.flash{box-shadow:0 0 0 3px rgba(197,34,31,.22)}
+.gv-i-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gv-i-name{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.lv{font-size:12.5px;font-weight:600;border-radius:4px;padding:1px 7px}
+.lv.urgent{background:var(--urgent-bg);color:var(--urgent)}.lv.attn{background:var(--attn-bg);color:var(--attn)}
+.gv-new{font-size:12.5px;color:var(--green);background:var(--green-soft);border-radius:4px;padding:1px 7px;font-weight:500}
+.gv-donetag{font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:4px;padding:1px 7px}
+.gv-i-meta{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.gv-i-sum{margin:10px 0 0;font-size:15px;line-height:1.6}
+.gv-nums{display:grid;grid-template-columns:repeat(3,1fr);margin:12px 0 0;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.gv-num{padding:8px 10px;display:flex;flex-direction:column;line-height:1.3}
+.gv-num+.gv-num{border-left:1px solid var(--line)}
+.gv-num b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.gv-num span{font-size:12.5px;color:var(--muted)}
+.gv-num.warn b{color:var(--urgent)}.gv-num.ask b{color:var(--attn)}
+.gv-cap{margin:12px 0 4px;font-size:12.5px;color:var(--muted)}
+.wbar-track{position:relative;height:10px;border-radius:999px;background:var(--bg)}
+.wbar-after{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--urgent);opacity:.85}
+.wbar-after.far{background:repeating-linear-gradient(90deg,var(--urgent) 0 8px,rgba(197,34,31,.35) 8px 12px)}
+.wbar-before{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--green)}
+.wbar-thr{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink)}
+.wbar-lab{position:relative;height:18px;margin-top:3px;font-size:12px;color:var(--muted)}
+.wbar-lab span{position:absolute;top:0;white-space:nowrap}
+.wb-b{left:0;color:var(--green)}.wb-a{right:0;color:var(--urgent);font-weight:500}.wb-thr{transform:translateX(-50%);color:var(--ink)}
+.gv-sec{margin-top:14px}
+.gv-sec h4{margin:0 0 4px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.gv-sec ul{margin:0;padding:0;list-style:none}
+.gv-sec li{position:relative;padding:3px 0 3px 16px;font-size:14.5px;line-height:1.55}
+.gv-sec.risk li::before{content:"";position:absolute;left:3px;top:12px;width:5px;height:5px;border-radius:50%;background:var(--urgent)}
+.gv-sec.act li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:2px;border-radius:1px;background:var(--ink)}
+.gv-sec .owner{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:4px;padding:0 6px;vertical-align:1px}
+.gv-alts li{padding-left:0;display:flex;align-items:center;gap:8px}
+.alt-n{flex:none;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center}
+.alt-name{font-weight:500}.alt-t{color:var(--muted);font-size:13.5px;margin-left:auto}
+.gv-why{margin-top:10px;font-size:13.5px;color:var(--muted)}
+.gv-why summary{cursor:pointer;width:max-content}
+.gv-why ul{margin:6px 0 0;padding-left:18px}
+.gv-basis{margin:6px 0 0;font-size:12.5px}
+.gv-acts{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.gv-donewhen{margin-left:auto;font-size:13px;color:var(--muted)}
+.gv-fold{margin:4px 24px 0;border-top:1px solid var(--line)}
+.gv-fold>summary{cursor:pointer;padding:12px 0;font-weight:500;font-size:15px}
+.gv-reflist{list-style:none;margin:0 0 12px;padding:0;max-height:360px;overflow:auto}
+.gv-reflist li{padding:7px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column}
+.gv-all{margin-bottom:24px}
+.gv-all .stats,.gv-all .subtabs,.gv-all .govlist,.gv-all .govkind{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+/* 지도 표시 */
+.gpin{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);background:var(--urgent)}
+.gpin.attn{background:var(--attn)}
+.apin{width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-size:12.5px;font-weight:600;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.gtip{font-weight:600}
+.lg-urgent,.lg-attn{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.lg-urgent{background:var(--urgent)}.lg-attn{background:var(--attn)}
+.lg-alt{width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.lg-area{width:14px;height:10px;border-radius:2px;background:rgba(197,34,31,.22);border:1.5px solid var(--urgent)}
+@media (max-width:720px){
+  .gov-head{padding:18px 16px 4px}.gv-run,.gv-sum,.gv-fold{margin-left:16px;margin-right:16px}.gv-gus,.gv-items{padding-left:16px;padding-right:16px}
+  .gv-num b{font-size:16px}
+}
+
+/* 확인 요청 */
+.gv-ask{margin:8px 24px 0;padding-top:14px;border-top:1px solid var(--line)}
+.gv-ask h2{font-size:16px;margin:0}
+.gv-ask h2 span{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:999px;background:var(--check-bg);color:var(--check-ink);font-size:13px;margin-left:4px;padding:0 6px;vertical-align:1px}
+.gv-ask-lead{margin:6px 0 10px;color:var(--muted);font-size:13.5px;line-height:1.6}
+.gv-ask-list{list-style:none;margin:0;padding:0}
+.gv-askrow{border:1px dashed #D9C27A;border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#FFFCF2}
+.gv-askrow:not(.big){border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:10px 0;margin:0}
+.gv-askrow.done{opacity:.6}
+.gv-askrow .gv-i-name{font-size:16px}
+.gv-askrow:not(.big) .gv-i-name{font-size:15px;font-weight:600}
+.lv.ask{background:var(--check-bg);color:var(--check-ink)}
+.gv-ask-why{margin:6px 0 0;font-size:14px}
+.gv-ask-if{margin:6px 0 0;font-size:14px;line-height:1.6}
+.gv-ask-if .lv{margin-right:4px}
+.gv-askrow .gv-acts{flex-wrap:wrap;border-top:0;padding-top:0;margin-top:10px}
+a.btn-chip{text-decoration:none;color:inherit}
+@media (max-width:720px){.gv-ask{margin-left:16px;margin-right:16px}}
+
+/* 이 곳이 하는(하던) 일 — 주민·지자체 공통 */
+.did{margin-top:10px}
+.did-h{font-size:12.5px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.did-chips{display:flex;flex-wrap:wrap;gap:5px}
+.did-c{display:inline-flex;align-items:center;gap:4px;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;background:var(--paper)}
+.did-c.pub{border-color:#B9CCF2;background:#EEF3FD}
+.did-c b{font-size:11px;font-weight:600;color:#fff;background:#2F6FDB;border-radius:4px;padding:0 4px}
+.did-law{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.pp-sec .did{margin-top:8px}.pp-sec .did-c{font-size:12.5px}
+.btn-text.report{display:block;margin-top:8px;font-size:13px;color:var(--muted);font-weight:400;text-decoration:underline;text-underline-offset:2px}
+.gv-check{list-style:none;margin:8px 0 0;padding:0}
+.gv-check li{font-size:13.5px;padding:4px 0;border-top:1px dashed #E6D9AE}
+.gv-check li span{color:var(--muted)}
+.gv-check a{color:var(--green);text-decoration:none;margin-left:4px}
+
+/* 공공·복지 중심 보고 (10/16 밤) */
+.gv-priv{margin:0 24px 8px;font-size:13.5px;color:var(--muted);line-height:1.55}
+.gv-scope{font-size:12.5px;color:#5B4A00;background:#FFF2C2;border-radius:4px;padding:1px 7px;font-weight:500}
+.gv-sec .must{display:inline-block;margin-right:6px;font-size:11.5px;font-weight:600;color:#fff;background:var(--urgent);border-radius:4px;padding:0 5px;vertical-align:1px}
+.gv-sec .must.ask{color:var(--muted);background:transparent;box-shadow:inset 0 0 0 1px currentColor}
+.gv-sec .law{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+@media (max-width:720px){.gv-priv{margin-left:16px;margin-right:16px}}
+
+/* 에이전트 판단·배움 (10/16 밤) */
+.gv-stat{display:flex;align-items:center;gap:14px;margin:14px 24px 4px}
+.gv-stat-n{display:flex;align-items:baseline;gap:2px}
+.gv-stat-n b{font-size:40px;line-height:1;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.gv-stat-n span{font-size:16px;color:var(--muted)}
+.gv-stat-l{display:flex;flex-direction:column;line-height:1.4}
+.gv-stat-l b{font-size:16px;font-weight:600}
+.gv-stat-l span{font-size:13.5px;color:var(--muted)}
+.gv-judge{margin:8px 0 0;font-size:14px;line-height:1.6;background:var(--bg);border-radius:8px;padding:8px 10px}
+.gv-judge b{font-weight:600;color:var(--green)}
+.gv-sec .fit{display:block;font-size:13px;color:var(--ink);margin-top:2px}
+.gv-reflist .g-why{display:block;font-size:13.5px;line-height:1.55;color:var(--muted);margin-top:2px}
+.gv-reflist .g-why.ai::before{content:"에이전트 판단 · ";color:var(--green);font-weight:500}
+.teach{margin-top:6px}
+.teach-b{font-size:13px;color:var(--muted);font-weight:400;text-decoration:underline;text-underline-offset:2px}
+.teach-t{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;margin:4px 0 6px;resize:vertical}
+.gv-lessonlist{margin:0 0 12px;padding-left:18px;font-size:14px;line-height:1.6}
+@media (max-width:720px){.gv-stat{margin-left:16px;margin-right:16px}}
+
+/* 거리 그림 기준선 이름 (10/16 밤) */
+.wbar-marks{position:relative;height:16px;font-size:11.5px;color:var(--ink)}
+.wbar-marks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.gv-stat-l b{font-size:17px}
+.gov-head h1{font-size:22px}
+
+/* 지자체: 보고하지 않은 곳 · 보고 기준 (10/19) */
+.gv-quiet{margin-top:22px}
+.gv-quiet h2,.gv-ask h2{font-size:15px;font-weight:600;margin:0 0 6px}
+.gv-quiet h2 span{color:var(--muted);font-weight:500;margin-left:2px}
+.gv-quiet-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.gv-q{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 2px;cursor:pointer;font:inherit;color:inherit}
+.gv-q:hover{background:var(--bg)}
+.gv-q:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.gv-q-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.gv-q-top b{font-size:14.5px;font-weight:600}
+.gv-q-top span{font-size:12.5px;color:var(--muted)}
+.gv-q p{margin:3px 0 0;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.gv-rules{margin-top:18px}
+.gv-rules summary{font-size:15px;font-weight:600;cursor:pointer}
+.gv-rules-lead{font-size:13.5px;line-height:1.6;margin:8px 0 4px}
+.gv-rules-h{font-size:13.5px;font-weight:600;margin:14px 0 6px}
+.gv-rules-h.lv-urgent{color:var(--urgent)}.gv-rules-h.lv-attn{color:var(--attn)}
+.gv-rules-t{width:100%;border-collapse:collapse;font-size:13px}
+.gv-rules-t th{font-weight:500;color:var(--muted);text-align:left;padding:4px 4px;border-bottom:1px solid var(--line);white-space:nowrap}
+.gv-rules-t td{padding:5px 4px;border-bottom:1px solid var(--line)}
+.gv-rules-t .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.gv-rules-note{font-size:12.5px;line-height:1.6;color:var(--muted);margin:8px 0 0}
+
+.rs-cap p{margin:0;line-height:1.5}
+.rs-cap .rs-sub2{color:var(--muted)}
+.rs-cap{display:block}
+.rs-cap p:first-child{color:var(--ink)}
+.gv-quiet{margin:22px 24px 0}
+.gv-rules{margin:18px 24px 24px}
+@media (max-width:860px){.gv-quiet,.gv-rules{margin-left:16px;margin-right:16px}}
+
+/* 10/19 오전: 보고에서 뺀 시설 접기, 보고 기준 쉽게 */
+.gv-quiet summary,.gv-rules summary{font-size:15px;font-weight:600;cursor:pointer;padding:12px 0 8px;list-style:none;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.gv-quiet summary::-webkit-details-marker,.gv-rules summary::-webkit-details-marker{display:none}
+.gv-quiet summary::before,.gv-rules summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;align-self:center}
+.gv-quiet[open] summary::before,.gv-rules[open] summary::before{transform:rotate(45deg)}
+.gv-quiet summary #gv-quiet-n{color:var(--muted);font-weight:500}
+.gv-sub{font-size:12.5px;font-weight:400;color:var(--muted);flex-basis:100%;padding-left:17px}
+.gv-quiet{margin-top:14px}
+.gv-rules-notes{margin:10px 0 0;padding-left:18px;font-size:13px;line-height:1.65;color:var(--ink)}
+.gv-rules-notes li{margin-bottom:3px}
+@media (prefers-reduced-motion:reduce){.gv-quiet summary::before,.gv-rules summary::before{transition:none}}
+
+/* 지도 표시 설명 (누르면 펼침) · 내 위치 버튼 (10/19) */
+.legend-res{padding:4px 6px;gap:2px;flex-wrap:wrap}
+.lg-btn{display:flex;align-items:center;gap:6px;border:0;background:none;font:inherit;font-size:13.5px;color:var(--muted);padding:4px 8px;border-radius:8px;cursor:pointer}
+.lg-btn:hover{background:var(--bg);color:var(--ink)}
+.lg-btn[aria-expanded="true"]{background:var(--bg);color:var(--ink)}
+.lg-btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.lg-panel{position:absolute;left:0;bottom:calc(100% + 8px);width:300px;max-width:calc(100vw - 48px);background:#fff;border:1px solid var(--line);border-radius:var(--r-m);box-shadow:0 6px 20px rgba(20,30,60,.14);padding:12px 14px;color:var(--ink);font-size:13.5px;line-height:1.55}
+.lg-p-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.lg-p-head b{font-size:14.5px}
+.lg-p-x{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;cursor:pointer;padding:2px 4px}
+.lg-panel p{margin:4px 0 0}
+.lg-p-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:7px}
+.lg-p-list li{display:flex;align-items:center;gap:9px}
+.lg-p-i{--c:#2F6FDB;width:24px;height:24px;flex:none;border-radius:50%;background:var(--c);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(20,30,60,.25)}
+.lg-p-i.welfare{--c:#7A4FD3}
+.lg-p-i svg{width:14px;height:14px}
+.lg-p-note{color:var(--muted);font-size:12.5px;margin-top:8px!important}
+.locate-btn{width:34px;height:34px;margin-top:6px!important;border:2px solid rgba(0,0,0,.2);border-radius:4px;background:#fff;color:#333;display:grid;place-items:center;cursor:pointer;padding:0;background-clip:padding-box}
+.locate-btn svg{width:18px;height:18px}
+.locate-btn.busy{color:#2F6FDB}
+.locate-btn:focus-visible{outline:2px solid var(--ink)}
+
+/* 주민 제보: AI 분석·주간 검토 (10/19) */
+.gv-ai{margin:8px 0 0;padding:9px 11px;border-radius:8px;background:var(--bg);font-size:13.5px;line-height:1.6}
+.gv-ai b{font-weight:600}
+.gv-ai p{margin:3px 0 0}
+.gv-ai-check{color:var(--muted)}
+.gv-tag{font-size:11.5px!important;font-weight:600;border-radius:4px;padding:0 6px;color:#fff!important}
+.gv-tag.closed{background:var(--urgent)}.gv-tag.open{background:var(--green)}.gv-tag.hold{background:#8A8F98}
+div.gv-q{cursor:default}
+.leaflet-popup .report{margin-top:8px;font-size:12.5px}
+
+.gv-stat{flex-wrap:wrap}
+.gv-asklink{flex-basis:100%;text-align:left;border:1px solid #E8D48A;background:#FFF8DD;color:#6B5200;border-radius:8px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.gv-asklink::after{content:" ›"}
+.gv-asklink:focus-visible{outline:2px solid var(--ink)}
+
+/* 오늘의 보고: 공백 심각 / 폐업 확인 필요 두 칸 + 두 목록 (10/19) */
+.gv-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 24px 6px}
+.gv-tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--r-m);padding:12px 14px;cursor:pointer}
+.gv-tile.urgent{border-left-color:var(--urgent)}
+.gv-tile.check{border-left-color:var(--stop)}
+.gv-tile.zero{border-left-color:var(--line)}
+.gv-tile:hover{background:#F8FAF9}
+.gv-tile:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.gv-tile-l{font-size:14px;font-weight:600}
+.gv-tile-n{display:flex;align-items:baseline;gap:2px}
+.gv-tile-n b{font-size:30px;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.gv-tile.urgent:not(.zero) .gv-tile-n b{color:var(--urgent)}
+.gv-tile.check:not(.zero) .gv-tile-n b{color:var(--check-ink)}
+.gv-tile.zero .gv-tile-n b{color:var(--muted)}
+.gv-tile-n span{font-size:14px;color:var(--muted)}
+.gv-tile-s{font-size:12.5px;color:var(--muted)}
+.gv-block{margin:18px 24px 0;padding-top:16px;border-top:1px solid var(--line);scroll-margin-top:12px}
+.gv-block h2{font-size:17px;font-weight:700;margin:0;display:flex;align-items:center;gap:6px}
+.gv-n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:999px;font-size:13px;font-weight:600;padding:0 7px;background:var(--bg);color:var(--muted)}
+.gv-n.urgent{background:var(--urgent-bg);color:var(--urgent)}
+.gv-n.attn{background:var(--attn-bg);color:var(--attn)}
+.gv-n.check{background:var(--check-bg);color:var(--check-ink)}
+.gv-lead{margin:4px 0 10px;color:var(--muted);font-size:13.5px;line-height:1.6}
+.gv-empty{margin:0 0 4px;padding:12px 14px;border-radius:var(--r-m);background:var(--bg);font-size:14px;line-height:1.6;color:var(--ink)}
+.gv-block .gv-items{padding:0;margin:0}
+.gv-block .gv-sum{margin:0 0 10px}
+.gv-subh{font-size:15px;font-weight:600;margin:16px 0 6px;display:flex;align-items:center;gap:6px}
+.gv-block.gv-ask{margin:18px 24px 0}
+.gv-ask h2 span#gv-ask-n{margin-left:0;vertical-align:0}
+.gv-refh{margin:26px 24px 0;font-size:13px;font-weight:600;color:var(--muted)}
+@media (max-width:720px){.gv-tiles,.gv-block,.gv-block.gv-ask,.gv-refh{margin-left:16px;margin-right:16px}}
+/* 좁은 칸에서 숫자 칸이 카드 밖으로 밀려나던 것 */
+.gv-nums{grid-template-columns:repeat(3,minmax(0,1fr))}
+.gv-item{min-width:0}
+.gv-tag.watch{background:var(--attn)}
+.gv-fix{display:block;margin:6px 0 0;font-size:13px;color:var(--muted);text-decoration:underline;background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
+.gv-fix:hover{color:var(--ink)}
+.gv-ask-q{margin:8px 0 0;font-size:14.5px;font-weight:600;line-height:1.6}
+.gv-judged{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+.gv-rules-h{margin:14px 0 4px;font-size:14px;font-weight:600}
+/* 지자체 화면 잠금 */
+#gov.locked > :not(#gv-lock){display:none}
+.gv-lock{margin:32px 24px;max-width:360px}
+.gv-lock h2{font-size:20px;margin:0 0 6px}
+.gv-lock-row{display:flex;gap:8px;margin-top:12px}
+.gv-lock-row input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper);color:var(--ink)}
+.gv-lock-row input:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.gv-lock-err{min-height:1.4em;margin:8px 0 0;color:var(--urgent);font-size:14px}
+@media (max-width:720px){.gv-lock{margin:24px 16px}}
+/* 조치 후속 관리 */
+.gv-copy{margin-left:6px;font-size:12.5px;color:var(--green);text-decoration:underline;background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
+.gv-reqtext{display:block;width:100%;min-height:120px;margin-top:6px;font:inherit;font-size:13px;line-height:1.5;padding:8px;border:1px solid var(--line);border-radius:var(--r-s)}
+.gv-doneform{display:flex;flex-direction:column;gap:6px;flex-basis:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--bg)}
+.gv-doneform-h{margin:0;font-size:13.5px;font-weight:600}
+.gv-chk{font-size:14px;line-height:1.5;display:flex;gap:6px;align-items:flex-start}
+.gv-memo{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s)}
+.gv-doneform .btn-chip{align-self:flex-start}
+.gv-follow{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.gv-acts{flex-wrap:wrap}
+.gv-doneform{box-sizing:border-box;width:100%;max-width:100%}
+.gv-chk input{flex:0 0 auto;margin-top:4px}
+#gov{overflow-x:hidden}
+
+/* 10/20: 보고 전 스스로 한 검토, 이어받을 자원 */
+.gv-check{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.gv-check b{display:inline-block;margin-right:6px;font-size:11.5px;font-weight:600;color:var(--green);box-shadow:inset 0 0 0 1px currentColor;border-radius:4px;padding:0 5px}
+.gv-check-note{margin:2px 0 0;font-size:12.5px;color:var(--check-ink)}
+.gv-sec.relay li b{display:inline-block;min-width:64px;margin-right:6px;font-weight:600;color:var(--ink)}
+.gv-subh .gv-sub{margin-left:8px;font-size:12px;font-weight:400;color:var(--muted)}
+
+.gv-note{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+
+.gv-subh-l{white-space:nowrap}
+.gv-subh{flex-wrap:wrap}
+
+/* 기능 공백 현황 (10/20) */
+#gaps>*{flex-shrink:0}
+#gaps>.gp-lead,#gaps>.gv-empty,#gaps>.gp-list,#gaps>.gv-note{margin-left:24px;margin-right:24px}
+#gaps>.gp-lead{margin-top:0;margin-bottom:4px}
+#gaps>.gv-empty{margin-top:12px}
+#gaps>.gp-list{margin-top:8px}
+#gaps>.gv-note{margin-top:12px;margin-bottom:24px}
+.gp-row p{margin:2px 0 0;font-size:13px;line-height:1.5}
+.gp-row .gp-eff{color:var(--ink)}
+.gp-row .gp-prev,.gp-row .gp-meta{color:var(--muted)}
+.gp-pin{width:14px;height:14px;border-radius:3px;background:var(--paper);border:3px solid #6B5CA5;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.lg.lg-gap{border-radius:2px;background:var(--paper);border:3px solid #6B5CA5;width:10px;height:10px;box-sizing:border-box}
+
+/* 주민 이용 결과 묻기 (10/20) */
+.use-ask{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:13.5px;color:var(--muted);background:var(--bg);border-radius:var(--r-m);padding:10px 12px}
+.use-btns{display:flex;gap:6px;flex-wrap:wrap}
+
+/* 지자체 화면 선택 위치 (10/20): 공백 심각도 핀과 다른 회색 원 */
+.refpin{width:16px;height:16px;border-radius:50%;background:#4A5552;border:3px solid #fff;box-shadow:0 0 0 1.5px #4A5552,0 1px 3px rgba(0,0,0,.3)}
+.lg.lg-ref{border-radius:50%;background:#4A5552;box-shadow:0 0 0 1.5px #fff inset}
+.gv-loc{margin-left:auto;font-size:13px}
+.leaflet-tooltip.gtip.ref{background:#4A5552;color:#fff;border-color:#4A5552}
+.leaflet-tooltip-top.gtip.ref:before{border-top-color:#4A5552}
+
+/* 지자체 화면 안의 두 칸, 폐업 사전 검토 (10/20) */
+.gv-subnav{display:flex;gap:4px;margin:0 24px 4px;border-bottom:1px solid var(--line)}
+.gv-subnav button{border:0;background:none;padding:8px 4px;margin-right:14px;font:inherit;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.gv-subnav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+#gv-pre>.gv-pre-lead,#gv-pre>.pre-form,#gv-pre>#pre-list,#gv-pre>.gv-note,#gv-pre>#pre-result{margin-left:24px;margin-right:24px}
+#gv-pre>.gv-pre-lead{margin-top:12px}
+.pre-form{display:flex;gap:8px;margin-top:4px}
+.pre-form input{flex:1;min-width:0;font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--paper);color:var(--ink)}
+#pre-result{margin-top:12px}
+.gv-item.pre{border-style:dashed}
+.lv.pre{background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:inset 0 0 0 1px var(--ink)}
+.lv.none{background:var(--bg);color:var(--muted)}
+.prepin{width:18px;height:18px;border-radius:50%;background:var(--paper);border:2.5px dashed #1D2B2A;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.lg.lg-prepin{border-radius:50%;background:var(--paper);border:2px dashed #1D2B2A;box-sizing:border-box}
+.leaflet-tooltip.gtip.pre{border-style:dashed}
+
+/* 10/20 보고·사전 검토 결과 정리: 심각도 기준표, 영향 묶음(숫자 + 거리 그림), 폐업 시 예상 공백 */
+.lv.watch{background:#E8EEF5;color:#3D5A80}
+.gv-legend{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;align-items:center;margin:10px 0 2px;padding:10px 12px;background:var(--bg);border-radius:var(--r-m);font-size:12.5px;line-height:1.45;color:var(--muted)}
+.gv-legend dt,.gv-legend dd{margin:0}
+.gv-legend dt .lv{display:inline-block;min-width:38px;text-align:center}
+.gv-lvdesc{flex-basis:100%;margin:0;font-size:12.5px;color:var(--muted)}
+.gv-impact{margin:12px 0 0;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.gv-impact .gv-nums{margin:0;border:0;border-radius:0}
+.gv-impact .gv-nums.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gv-impact .gv-num{padding:10px 12px}
+.dchart{border-top:1px solid var(--line);padding:10px 12px 6px}
+.dchart-t{margin:0 0 4px;font-size:12.5px;color:var(--muted)}
+.dchart-rows{position:relative;padding-bottom:20px}
+.dchart-row{display:grid;grid-template-columns:52px 1fr 76px;align-items:center;height:26px}
+.dchart-lab{font-size:12.5px;color:var(--muted)}
+.dchart-bar{height:10px;background:var(--bg);border-radius:999px;overflow:hidden}
+.dchart-fill{display:block;height:100%;border-radius:999px}
+.dchart-fill.ok{background:var(--green)}
+.dchart-fill.bad{background:var(--urgent)}
+.dchart-fill.far{border-radius:999px 0 0 999px;background:linear-gradient(90deg,var(--urgent) 78%,rgba(197,34,31,.18))}
+.dchart-v{text-align:right;font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.dchart-v.ok{color:var(--green)}.dchart-v.bad{color:var(--urgent)}
+.dchart-thr{position:absolute;top:2px;bottom:18px;border-left:1.5px dashed var(--ink);opacity:.75}
+.dchart-thr span{position:absolute;top:100%;left:0;transform:translateX(-50%);margin-top:3px;font-size:11.5px;white-space:nowrap;color:var(--ink)}
+.gv-check-note{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.gv-ask-if{margin:8px 0 0;padding:8px 10px;background:rgba(255,255,255,.7);border-radius:var(--r-s);line-height:1.5}
+.gv-ask-if-h{margin:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.gv-ask-if-t{margin:3px 0 0;font-size:13.5px;color:var(--ink)}
+/* 창업·유치 참고 (10/20): 보고된 기능 공백(보라 네모)과 다른 색·모양 (청록 동그라미) */
+.gp-pin.biz{border-radius:50%;border-color:#00796B}
+.lg.lg-biz{border-radius:50%;background:var(--paper);border:3px solid #00796B;width:10px;height:10px;box-sizing:border-box}
+.gv-tag.biz{background:#E0F2EF;color:#00695C;font-size:12px;font-weight:600;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.gp-row.biz{border-left:3px solid #00796B}
+.gp-row .gv-tag.biz{background:#E0F2EF!important;color:#00695C!important;border:0}
+.gp-row.biz{padding-left:12px}
+/* 공백 지역 (10/21): 주황 동그라미(동네 중심), 폐업 공백(보라 네모), 창업·유치 참고(청록 동그라미) */
+.gp-pin.area{border-radius:50%;border-color:#C76A00;width:18px;height:18px;background:rgba(199,106,0,.18)}
+.lg.lg-area{border-radius:50%;background:rgba(199,106,0,.18);border:3px solid #C76A00;width:10px;height:10px;box-sizing:border-box}
+.gp-row .gv-tag.area{background:#FDEBD3!important;color:#8A4B00!important}
+.gp-row.area{border-left:3px solid #C76A00;padding-left:12px}
+/* 기능 공백 구역 한 목록 (10/21) */
+.gp-row.zone{border-left:3px solid #C76A00;padding-left:12px}
+.gp-row.zone.closed{border-left-color:#6B5CA5}
+.gz-tags{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.gp-row .gv-tag.zt-closed{background:#ECE8F6!important;color:#4F3F8C!important}
+.gp-row .gv-tag.zt-recent{background:#F1F1F1!important;color:#5D6B69!important}
+.gp-row .gv-tag.zt-report{background:var(--urgent-bg)!important;color:var(--urgent)!important}
+.gp-row .gv-tag.zt-biz{background:#E0F2EF!important;color:#00695C!important}
+.gz-det{margin:0 0 6px 15px;padding:6px 10px;border-left:3px solid #F3D3AE;font-size:13px;line-height:1.55;color:var(--ink)}
+.gz-det p{margin:2px 0}
+.gz-det .gz-biz{color:#00695C}
+.gz-det .gz-hint{color:var(--muted);font-size:12px}
+/* 참고 · 주민 반응 안의 세 갈래 (10/21) */
+.gv-subblock{margin:6px 0 10px}
+.gv-subblock h4{margin:8px 0 4px;font-size:13.5px;font-weight:600;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.gv-subblock h4 .gv-sub{font-weight:400}
+
+/* 10/21: 참고 안내 문구 여백, 공백 심각도 '관찰' 목록, 검토 완료 구분 태그 */
+.gv-ref-note{margin:4px 24px 0}
+@media (max-width:720px){.gv-ref-note{margin-left:16px;margin-right:16px}}
+.gv-n.watch{background:#E8EEF5;color:#3D5A80}
+.gv-watch-list{margin-top:4px}
+.gv-tag.kind{font-size:11.5px!important;font-weight:600;border-radius:4px;padding:0 6px;white-space:nowrap}
+.gv-tag.k-none{background:#E6F2EC!important;color:#1F6B4A!important}
+.gv-tag.k-low{background:#E8EEF5!important;color:#3D5A80!important}
+.gv-tag.k-conv{background:#F1F1F1!important;color:#5D6B69!important}
+.gv-tag.k-pref{background:#F6F0E6!important;color:#7A5A2B!important}
+.gv-tile-s{word-break:keep-all}
+
+/* 공백 심각도 타일 (10/21): 긴급·주의·관찰 각각의 수 */
+.gv-tile.sev{display:flex;flex-direction:column;gap:6px}
+.gv-sev-nums{display:flex;gap:14px;align-items:baseline}
+.gv-sev{display:inline-flex;align-items:baseline;gap:3px}
+.gv-sev b{font-size:24px;line-height:1.1;font-weight:700}
+.gv-sev span{font-size:12.5px;color:var(--muted)}
+.gv-sev.urgent b{color:var(--urgent)}.gv-sev.attn b{color:var(--attn)}.gv-sev.watch b{color:#3D5A80}
+.gv-sev.zero b{color:#B8BEC4}
+#gv-quiet-other{margin:8px 0 4px}
+.gv-q-top .lv.watch{margin-right:2px}
+.gv-sev span,.gv-sev b{white-space:nowrap}
+.gv-sev{gap:5px}.gv-sev span{font-size:13px;color:var(--ink);font-weight:600}.gv-sev.zero span{color:var(--muted);font-weight:400}
+.gv-tag.k-today{background:#1F6B4A!important;color:#fff!important;font-size:11.5px;font-weight:600;border-radius:4px;padding:0 6px;white-space:nowrap}
+#gv-quiet .gv-qlegend{margin:8px 0 6px}#gv-quiet .gv-qlegend dt{color:var(--ink,#222)}#gv-quiet .gv-qlegend .gv-qsub{padding-left:12px;color:var(--muted)}#gv-quiet .gv-qlegend b{font-weight:600;color:var(--ink,#222)}#gv-quiet-today{margin:0 0 8px}
+/* 검토 완료 묶음 (10/21) */
+.gv-qhead{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;padding:12px 2px 6px;border-bottom:1px solid var(--line);font-size:14px}
+.gv-qhead span{color:var(--muted);font-size:13px}.gv-qhead .gv-sub{padding-left:0;flex-basis:auto}
+.gv-qgroup{border-bottom:1px solid var(--line)}
+.gv-qgroup summary{cursor:pointer;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 2px;font-size:14px}
+.gv-qgroup summary span:last-child{color:var(--muted);font-size:13px}
+.gv-qgroup .gv-quiet-list{border-top:0;padding-left:10px}
+.gv-scope{margin:6px 0 0}
+.gv-sevchips{display:inline-flex;gap:5px;vertical-align:middle}.gv-sevchips .gv-n{font-size:12.5px;padding:0 8px}
+#gv-gap .gv-scope{background:none;border:0;padding:0;margin:8px 2px 0;color:var(--muted)}
+/* 지도 범례: 지도에 칠한 색과 같은 모양·색 (10/21) — 지자체: 공백 구역(빨강, 동 단위) / 기능 공백: 공백 구역(주황, 100m 칸) */
+.lg.lg-govarea{width:16px;height:12px;border-radius:3px;background:rgba(197,34,31,.25);border:2px solid #C5221F;box-sizing:border-box}
+.lg.lg-gaparea{width:16px;height:12px;border-radius:3px;background:rgba(194,65,12,.55);border:2px solid #C2410C;box-sizing:border-box}
+/* 상권 분석 (10/21) */
+.gz-trade{margin:8px 0 4px;padding:10px 12px;background:#F7FAF9;border:1px solid #DDE8E5;border-radius:8px}
+.gz-th{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 6px}.gz-th span:last-child{color:var(--muted);font-size:12.5px}
+.gz-fit{font-size:12px;font-weight:700;border-radius:4px;padding:0 7px}
+.gz-fit.f-hi{background:#E0F2EF;color:#00695C}.gz-fit.f-mid{background:#E8EEF5;color:#3D5A80}.gz-fit.f-cond{background:#FDF3DC;color:#8A5A00}.gz-fit.f-lo{background:#F1F1F1;color:#5D6B69}
+.gz-sum{font-weight:600;margin:2px 0 4px}
+.gz-pl{margin:0 0 6px;padding-left:18px;font-size:13px}.gz-pl li.pro::marker{content:"+ ";color:#00695C}.gz-pl li.con::marker{content:"− ";color:#B3261E}
+.gz-facts{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:4px 0;font-size:12.5px}.gz-facts dt{color:var(--muted)}.gz-facts dd{margin:0}
+.gz-why{font-size:12px;color:var(--muted);margin:4px 0 0}
+/* 공립 유치원 대체 (10/21) */
+.gv-sec.pubalt{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#FAFBFB}
+.gv-sec.pubalt h4{display:flex;align-items:center;gap:6px;margin:0 0 4px;font-size:13.5px}
+.pub-v{font-size:12px;font-weight:700;border-radius:4px;padding:0 7px}
+.pubalt.ok .pub-v{background:#E0F2EF;color:#00695C}.pubalt.short .pub-v{background:#E8EEF5;color:#3D5A80}
+.pub-sum{margin:0 0 4px;font-size:13px}
+.pub-list{list-style:none;margin:0;padding:0;font-size:12.5px}.pub-list li{display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-top:1px dashed var(--line)}
+.pub-d{color:var(--muted);white-space:nowrap}
+
+/* 심사용 보기 전용 (10/21) */
+.gv-view { margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: #eef3fb; color: #24467a; font-size: 13px; line-height: 1.5; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 12px); max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 8px; background: #1f2937; color: #fff; font-size: 14px; line-height: 1.5; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 3000; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+/* 업무 보조 대화 (10/21): 지도 오른쪽에 붙는 비서 창. 기본 화면(왼쪽 보고)과 함께 봄. 휴대폰에서는 아래에서 올라오는 창 */
+.gc-open{position:absolute;right:16px;bottom:26px;z-index:1001;display:flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--ink);color:#fff;padding:11px 18px 11px 15px;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 4px 14px rgba(29,43,42,.28)}
+.gc-open svg{width:19px;height:19px}
+.gc-open:hover{background:#2E403E}
+.gc{position:absolute;top:12px;right:12px;bottom:12px;width:min(420px,46%);z-index:1001;display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(29,43,42,.18);overflow:hidden}
+.gc-head{display:flex;align-items:center;gap:10px;padding:12px 14px 10px 16px;border-bottom:1px solid var(--line)}
+.gc-t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.gc-t b{font-size:16px}.gc-t span{font-size:12.5px;color:var(--muted)}
+.gc-new{font-size:13.5px}
+.gc-x{border:0;background:none;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;padding:2px 4px}
+.gc-ctx{display:flex;align-items:center;gap:8px;padding:7px 16px;background:var(--green-soft);font-size:13.5px;border-bottom:1px solid var(--line)}
+.gc-ctx-l{color:var(--green);font-weight:600}.gc-ctx b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gc-ctx-k{color:var(--muted)}
+.gc-ctx .btn-text{margin-left:auto;font-size:13px}
+.gc-log{flex:1;overflow:auto;padding:14px 16px 6px;font-size:14.5px;line-height:1.6}
+.gc-m{margin:0 0 14px}
+.gc-m p{margin:0 0 5px}
+.gc-m.me{margin-left:auto;width:fit-content;max-width:88%;background:var(--green-soft);border-radius:10px 10px 2px 10px;padding:7px 12px}
+.gc-m.hello{background:var(--bg);border-radius:10px;padding:10px 12px}
+.gc-hello-h{font-weight:600}
+.gc-did{font-size:12.5px;color:var(--muted)}
+.gc-txt{white-space:pre-line}
+.gc-flag{font-size:12.5px;color:var(--muted);font-weight:400;padding:2px 0}
+.gc-flagged{font-size:12.5px;color:var(--muted)}
+.gc-opts{flex:none;display:flex;flex-wrap:wrap;gap:6px;padding:8px 16px 10px;border-top:1px solid var(--line);background:var(--paper)}
+.gc-opts:empty{display:none}
+.gc-head,.gc-ctx,.gc-say{flex:none}
+.gc-log{min-height:0}
+.gc-opts button{border:1px solid var(--green);color:var(--green);background:var(--paper);border-radius:999px;padding:5px 12px;font-size:13.5px;line-height:1.4;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.gc-opts button:hover{background:var(--green-soft)}
+.gc-say{display:flex;align-items:flex-end;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line)}
+.gc-opts:not(:empty)+.gc-say{border-top:0;padding-top:2px}
+.gc-say textarea{flex:1;min-width:0;border:1px solid var(--line);border-radius:var(--r-m);padding:9px 12px;font:inherit;font-size:15px;line-height:1.5;resize:none;background:#fff;color:inherit}
+.gc-say textarea:focus{border-color:var(--green);outline:0}
+.gc-say button{height:42px;flex:none}
+.gc-bt{font-weight:600;font-size:13.5px;margin:8px 0 4px!important}
+.gc-note{font-size:12.5px;color:var(--muted)}.gc-note.warn{color:var(--check-ink)}
+.gc-tbl,.gc-pol{margin:6px 0 4px;overflow-x:auto}
+.gc-tbl table,.gc-pol table{width:100%;border-collapse:collapse;font-size:13px}
+.gc-tbl th,.gc-tbl td,.gc-pol th,.gc-pol td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;white-space:nowrap}
+.gc-pol th,.gc-tbl th{white-space:normal;word-break:keep-all;line-height:1.3;vertical-align:bottom}   /* 10/25: 머리글을 줄바꿈해 표가 대화창 폭에 맞게 (가로 넘김 막대·잘린 칸 없앰) */
+.gc-pol td:nth-child(2){white-space:normal;word-break:keep-all}
+.gc-tbl th,.gc-pol th{color:var(--muted);font-weight:500;font-size:12.5px}
+.gc-tbl td.n,.gc-pol td.n{text-align:right;font-variant-numeric:tabular-nums}
+.gc-pol tr.clk{cursor:pointer}.gc-pol tr.clk:hover,.gc-pol tr.clk:focus{background:var(--bg);outline:0}
+.gc-list ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.gc-row{display:flex;flex-direction:column;gap:1px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:8px 2px;cursor:pointer}
+.gc-row:hover{background:var(--bg)}
+.gc-row-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.gc-row-top b{font-size:14px}
+.gc-row-m{font-size:12.5px;color:var(--muted)}
+.gc-row-s{font-size:13px;color:var(--ink)}
+.gc-tag{font-size:11.5px;padding:0 6px;border-radius:4px;background:var(--bg);color:var(--muted);white-space:nowrap}
+.gc-tag.t-urgent{background:#C5221F;color:#fff}.gc-tag.t-attn{background:#B26A00;color:#fff}.gc-tag.t-watch{background:#E7EEF9;color:#1A5FB4}
+.gc-tag.t-ask{background:var(--check-bg);color:var(--check-ink)}.gc-tag.t-risk{background:#FBE9E7;color:#9A3412}.gc-tag.t-open{background:var(--green-soft);color:var(--green)}
+.gc-tag.t-closed{background:#FBE9E7;color:#9A3412}.gc-tag.t-rep{background:#FCE8E6;color:#C5221F}.gc-tag.t-biz{background:#E8F0FE;color:#1A5FB4}
+.gc-card{margin:6px 0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px}
+.gc-card .gv-items,.gc-card .gv-ask-list{margin:0;padding:0}
+.gc-card .gv-item,.gc-card .gv-askrow{border:0;margin:0;padding:0;box-shadow:none}
+.gc-nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.gc-nums div{background:var(--bg);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column}
+.gc-nums b{font-size:18px}.gc-nums span{font-size:12.5px;color:var(--muted)}
+.gc-act{margin:6px 0;border:1.5px solid var(--ink);border-radius:10px;padding:10px 12px}
+.gc-act.done{border-color:var(--line)}
+.gc-act-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.gc-act-h span{color:var(--muted);font-size:13.5px}
+.gc-act-d{font-size:13.5px}
+.gc-act-b{display:flex;gap:8px;margin-top:6px}
+.gc-act-r{font-size:13.5px;color:var(--muted)}.gc-act-r.ok{color:var(--green);font-weight:500}
+.gc-doc{margin:6px 0;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.gc-doc-h{display:flex;align-items:center;gap:8px}
+.gc-doc-i{font-size:11px;font-weight:600;color:#fff;background:var(--green);border-radius:4px;padding:1px 6px}
+.gc-doc a.btn-chip{display:inline-block;text-decoration:none;color:#fff}
+.gc-pre{white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;background:var(--bg);border-radius:8px;padding:8px 10px;margin:6px 0;max-height:240px;overflow:auto}
+.gcpin{width:26px;height:26px;border-radius:50%;background:#1A5FB4;color:#fff;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.gv-askai{font-size:13px;margin-left:auto}
+.gv-quiet-list li>.gv-askai,#gv-lastone-list li>.gv-askai{display:block;margin:-2px 0 6px 2px}
+.flash{box-shadow:0 0 0 3px rgba(14,122,95,.25);border-radius:8px;transition:box-shadow .3s}
+@media (max-width:860px){
+  .gc-open{position:fixed;right:14px;bottom:18px}
+  .gc{position:fixed;top:auto;left:0;right:0;bottom:0;width:auto;height:78vh;border-radius:14px 14px 0 0}
+  body.gc-on{overflow:hidden}
+}
+
+/* 시설 상태 표시 (10/22): 문 닫은 곳 = 네모(셔터) · 색은 공백 정도 / 운영 확인 필요 = 노랑 원(?) / 영업 중 = 초록 원(가게) · 닫으면 공백 우려는 주황 테두리 */
+:root{--st-urgent:#C5221F;--st-attn:#B45309;--st-watch:#1A5FB4;--st-none:#6B7472;--st-open:#0E7A5F;--st-risk:#E8710A;--st-ask:#F2B705}
+.spin{position:relative;width:24px;height:24px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);box-sizing:border-box}
+.spin.big{width:30px;height:30px}
+.spin svg{width:15px;height:15px}.spin.big svg{width:19px;height:19px}
+.spin.closed{border-radius:6px;background:var(--st-none)}
+.spin.closed.urgent{background:var(--st-urgent)}.spin.closed.attn{background:var(--st-attn)}.spin.closed.watch{background:var(--st-watch)}
+.spin.open{border-radius:50%;background:var(--st-open)}
+.spin.open.risk{box-shadow:0 0 0 3px var(--st-risk),0 1px 5px rgba(0,0,0,.35)}
+.spin.open.pre{background:#fff;border:2.5px dashed var(--st-open)}.spin.open.pre svg g{stroke:var(--st-open)}
+.spin.ask{border-radius:50%;background:var(--st-ask);color:#3D2E00;font-size:14px;font-weight:700}.spin.big.ask{font-size:16px}
+.spin.ref{border-radius:50%;background:#4A5552}
+.spin-b{position:absolute;top:-7px;right:-7px;width:14px;height:14px;border-radius:50%;background:var(--st-risk);color:#fff;font-style:normal;font-size:10.5px;font-weight:700;display:grid;place-items:center;border:1.5px solid #fff}
+.leaflet-tooltip.stip{padding:6px 9px;border-radius:8px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.stip-in{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.stip-in b{font-size:13.5px;color:var(--ink);font-weight:600}
+/* 상태 꼬리표: 지도 말풍선 · 대화 목록 · '선택' 줄에서 같은 모양 */
+.stt{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;line-height:1;padding:4px 7px;border-radius:5px;white-space:nowrap}
+.stt::before{content:"";width:8px;height:8px;flex:none}
+.stt.closed{background:#EEF0EF;color:#3F4745}.stt.closed::before{border-radius:2px;background:var(--st-none)}
+.stt.closed.urgent{background:#FCE8E6;color:#A50E0E}.stt.closed.urgent::before{background:var(--st-urgent)}
+.stt.closed.attn{background:#FEF0DB;color:#8A3F00}.stt.closed.attn::before{background:var(--st-attn)}
+.stt.closed.watch{background:#E7EEF9;color:#174EA6}.stt.closed.watch::before{background:var(--st-watch)}
+.stt.open{background:#E3F1EC;color:#0B5E49}.stt.open::before{border-radius:50%;background:var(--st-open)}
+.stt.open.risk{background:#FDEBD8;color:#8A4200}.stt.open.risk::before{box-shadow:0 0 0 2px var(--st-risk)}
+.stt.open.pre::before{background:#fff;border:1.5px dashed var(--st-open);box-sizing:border-box}
+.stt.ask{background:#FFF4CC;color:#6B4E00}.stt.ask::before{border-radius:50%;background:var(--st-ask)}
+.stt.ref{background:#EEF0EF;color:#3F4745}
+.gc-row-top .stt{margin-left:auto}
+.gc-ctx .stt{flex:none}
+/* 범례 */
+.lgs{display:inline-grid;place-items:center;width:13px;height:13px;box-sizing:border-box;font-style:normal}
+.lgs.closed{border-radius:3px;background:var(--st-none)}.lgs.closed.urgent{background:var(--st-urgent)}.lgs.closed.attn{background:var(--st-attn)}.lgs.closed.watch{background:var(--st-watch)}
+.lg-grp{gap:3px!important}.lg-grp .lgs:last-of-type{margin-right:3px}
+.lgs.open{border-radius:50%;background:var(--st-open)}.lgs.open.risk{box-shadow:0 0 0 2px var(--st-risk)}.lgs.open.pre{background:#fff;border:1.5px dashed var(--st-open)}
+.lgs.ask{border-radius:50%;background:var(--st-ask);color:#3D2E00;font-size:10px;font-weight:700}
+.legend-gov{flex-wrap:wrap;row-gap:6px;max-width:calc(100% - 150px)}
+.lgs.hd{margin-right:7px;vertical-align:-1px}
+/* 버스 길 가운데 노선 번호 (10/22) */
+.busno{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 6px;border-radius:999px;background:var(--c);color:#fff;font-size:12.5px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.busno svg{width:14px;height:14px}
+/* 대화: 근거 자료 접기 · 공백 구역 핀 (10/22) */
+.gc-more{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+.gc-more>summary{cursor:pointer;font-size:13px;color:var(--muted);padding:4px 0}
+.gc-more[open]>summary{margin-bottom:6px}
+.zpin{width:26px;height:26px;border-radius:7px;background:#FFF1E6;border:2px solid #C2410C;color:#9A3412;font-size:12.5px;font-weight:700;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.25);box-sizing:border-box}
+.stt.zone{background:#FFF1E6;color:#9A3412}.stt.zone::before{border-radius:2px;background:#fff;border:1.5px solid #C2410C;box-sizing:border-box}
+.lgs.zone{border-radius:3px;background:#FFF1E6;border:1.5px solid #C2410C}
+/* 대화 단축 버튼 (10/25 헌준님: 가로 넘김 막대·흐림이 구분선과 겹쳐 보이던 것 → 두 줄까지 줄바꿈, 넘김 없음) */
+.gc-opts{flex-wrap:wrap;overflow:hidden;max-height:90px;align-content:flex-start}
+.gc-opts button{flex:none;white-space:nowrap;font-size:13px}
+/* 업무 보조 답: 핵심 판단 강조 · 근거 숫자 굵게 (10/22) */
+.gc-key{background:var(--green-soft);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:10px 12px;margin:2px 0 10px;font-size:15px;font-weight:600;line-height:1.55;color:var(--ink);word-break:keep-all}
+.gc-key b.num{color:var(--green);font-weight:700}
+.gc-txt b.num{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+
+.msg .svc-h{font-weight:700;margin-top:10px;color:var(--green)}
+
+.gv-sport-act{margin-top:4px;font-size:12.5px;color:var(--muted)}
+#gv-sport .gv-q-top .lv{margin-right:2px}
+
+/* (10/26) 기능 공백: 공공시설(공원·공공 체육시설) 구분 */
+.gp-row.zone.pub{border-left-color:#1F5FAF}
+.gp-row .gv-tag.zt-pub{background:#1F5FAF!important;color:#fff!important}
+.gc-tag.t-pub{background:#1F5FAF;color:#fff}
+
+/* (10/26) 답이 이상해요 */
+.bad-row{display:flex;justify-content:flex-end;margin:-2px 0 6px}
+.bad-btn{font-size:12.5px!important;color:var(--muted)!important}
+.bad-row.open{flex-direction:column;align-items:stretch;gap:6px;background:var(--bg);border-radius:var(--r-m);padding:10px 12px;margin:2px 0 8px}
+.bad-memo{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;font-size:13.5px;resize:vertical}
+.bad-ok{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:var(--muted);line-height:1.45}
+.bad-ok input{margin-top:2px}
+.bad-btns{display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.bad-go{padding:4px 14px;font-size:13px}
+.bad-go:disabled{opacity:.45}
+.bad-thanks{font-size:13px;color:var(--muted)}
+
+/* (10/26) 업무 보조: 조회 범위 변경 구분선 */
+.gc-scope{display:flex;align-items:center;gap:8px;margin:10px 0 4px;color:var(--muted);font-size:12px}
+.gc-scope::before,.gc-scope::after{content:"";flex:1;height:1px;background:var(--line)}
+/* (10/26 검토) 업무 보조가 좁을 때: 추천 버튼이 입력창 뒤로 잘리지 않게 한 줄 가로 넘김, 창 너비는 320px 아래로 줄지 않게 */
+.gc{width:clamp(320px,46%,420px)}
+.gc-opts{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-height:none;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.gc-opts::-webkit-scrollbar{height:4px}
+.gc-opts::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+.lg.lg-gaparea.pub{background:rgba(31,95,175,.5);border-color:#1F5FAF}
+/* (10/29) 카드 안 줄이 6줄을 넘으면(출발지 따로 + 고른 까닭) 주소·버튼이 순위 칸으로 밀려 세로로 찌그러지던 것: 순위 외에는 늘 둘째 칸 */
+.alt>*:not(.rank){grid-column:2}
+.alt>.rank{grid-row:1 / span 2}
+
+/* (10/29) 지자체 잠금 화면: 심사용 코드 안내 */
+.gv-lock-guide{margin-top:18px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--bg)}
+.gv-lock-code{display:flex;align-items:baseline;gap:10px;margin:0 0 6px;font-size:14px;color:var(--muted)}
+.gv-lock-code b{font-size:18px;letter-spacing:.08em;color:var(--ink);font-variant-numeric:tabular-nums;user-select:all}
+.gv-lock-note{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+/* (10/29) 업무 보조 답 글: 결론 한 줄 + 점 목록 */
+.gc-ans{margin:0 0 6px}
+.gc-lead{font-size:15px;font-weight:600;line-height:1.55;margin:0 0 6px!important;color:var(--ink);word-break:keep-all}
+.gc-lead b.num{font-weight:700;color:var(--green)}
+.gc-pts{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.gc-pts li{position:relative;padding-left:14px;font-size:14px;line-height:1.55;color:var(--ink);word-break:keep-all}
+.gc-pts li::before{content:"";position:absolute;left:3px;top:.68em;width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.gc-pts b.num{font-weight:600;font-variant-numeric:tabular-nums}
+/* (10/29 헌준님: 버튼 글자·테두리 겹침, 옆으로 넘겨지지 않음) 추천 버튼은 잘리지 않게 줄바꿈으로 모두 보이게 */
+.gc-opts{flex-wrap:wrap!important;overflow:visible!important;max-height:none!important;align-content:flex-start}
+.gc-opts button{flex:0 1 auto!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;text-align:left;line-height:1.35!important;padding:6px 12px!important;max-width:100%}
+
+/* (10/29) 한 건물 여러 폐업: 말풍선 안에서 위아래로 넘겨 보기, 줄마다 촘촘하게 */
+.pp-multi .leaflet-popup-content{margin:0;padding:0 14px 10px}
+.pp-multi .pp-head{position:sticky;top:0;z-index:1;background:var(--paper);padding:12px 0 8px;margin:0;border-bottom:1px solid var(--line);font-weight:600}
+.pp-multi .pp-sec{padding:10px 0;border-bottom:1px solid var(--line);margin:0}
+.pp-multi .pp-sec:last-child{border-bottom:0}
+.pp-multi .pp-btn{margin-top:6px}
+.pp-multi .leaflet-popup-content-wrapper{overflow:hidden}
+.leaflet-popup-scrolled{border:0;overscroll-behavior:contain}
+.pp-multi .pp-btn{width:auto;display:inline-flex;padding:4px 12px;font-size:13px;background:var(--paper);color:var(--green);border:1px solid var(--green);border-radius:999px}
+.pp-multi .pp-btn:hover{background:var(--green-soft)}
+.pp-multi .pp-name{font-size:15px}
+.pp-multi .pp-meta{font-size:13px}
+#map.pp-open .legend,#map.pp-open ~ .legend,.map-wrap:has(#map.pp-open) .legend{visibility:hidden}
+/* (10/29 헌준님) 여러 폐업 말풍선이 작게 보이던 것: 한 줄을 촘촘하게 (이름·정보 왼쪽, 버튼 오른쪽) → 한 번에 3곳 남짓 보이게 */
+.pp-multi .pp-sec{display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:center;padding:8px 0}
+.pp-multi .pp-sec .pp-name{grid-column:1;line-height:1.35}
+.pp-multi .pp-sec .pp-meta{grid-column:1;line-height:1.35}
+.pp-multi .pp-sec .pp-btn{grid-column:2;grid-row:1 / span 2;margin-top:0;white-space:nowrap}
+.pp-multi .pp-head{padding:10px 0 6px}
+.pp-multi .leaflet-popup-content{min-width:250px}
+.pp-multi .pp-sec .pp-btn{padding:3px 10px;font-size:12.5px}

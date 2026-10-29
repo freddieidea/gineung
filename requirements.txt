@@ -1,0 +1,6 @@
+# 기능상속 웹사이트를 켜는 데 필요한 파이썬 도구 (web/server.py). 파이썬 3.9에서도 켜지는 것 확인함 (10/15)
+numpy
+pandas
+scipy
+anthropic
+rapidfuzz
