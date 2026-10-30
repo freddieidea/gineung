@@ -323,6 +323,12 @@ def gov_doc(q):
     b = GD.load()
     if not b: return None
     gu = q("gu") if q("gu") in GD.GUS else None; kind = q("kind")
+    if kind == "report" and q("sec"):   # (10/30) 주제별 보고서: 요청 주제 + AI 참고 자료·검토 의견
+        import base64
+        sec = [x for x in (q("sec") or "").split(",") if x in GD.SECTIONS]; ext = [x for x in (q("ext") or "").split(",") if x in GD.SECTIONS]
+        try: notes = [str(x)[:200] for x in json.loads(base64.urlsafe_b64decode((q("notes") or "") + "==").decode("utf-8"))][:6] if q("notes") else []
+        except Exception: notes = []
+        if sec: return ("text/html; charset=utf-8", GD.report_focus_html(b, gu, (q("title") or "")[:60] or None, sec, ext, notes, q("dong") or None, auto_print=q("print") == "1").encode("utf-8"), None)
     if kind == "report": return ("text/html; charset=utf-8", GD.report_html(b, gu, gov_last_run(), auto_print=q("print") == "1", title=(q("title") or "")[:60] or None).encode("utf-8"), None)
     if kind == "xlsx":
         ts = [t for t in (q("tables") or "폐업,확인요청,공백구역").split(",") if t in GD.TABLES] or ["폐업"]

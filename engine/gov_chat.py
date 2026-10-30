@@ -128,6 +128,8 @@ SYSTEM = """당신은 대구광역시 구·군 담당 공무원의 업무를 돕
 - 문서를 만든 뒤에는 "○○ 요약입니다"처럼 한 문장이면 충분합니다. 담은 항목을 늘어놓거나 버튼 쓰는 법을 설명하지 않습니다(문서 칸에 버튼이 있음).
 - 기준의 까닭은 자료의 '까닭'을 그대로 전합니다. 다른 기준과 비교하거나 추론해서 까닭을 새로 만들지 않습니다.
 - 문서를 만들었다고 말하려면 반드시 이번 마디에 make_document를 호출해야 합니다.
+- 문서의 범위는 담당자가 요청한 주제만입니다 (10/30 헌준님). "○○ 단절 우려 시설 정리해 줘/보고서로" → make_document(kind=보고서PDF 또는 요약, sections=['단절 우려']). 일일 보고 전체(공백 심각도·폐업 확인 등 모든 항목)는 "오늘 보고서", "일일 보고"처럼 전체를 원할 때만 sections를 비워 만듭니다. 요청하지 않은 공백 심각도·폐업 확인 목록을 끼워 넣지 않습니다.
+  · 담당자가 요청한 자료를 판단하는 데 실제로 도움이 되는 참고 자료는 스스로 판단해 붙입니다: extra_sections(0~2개, 예: 단절 우려 → 같은 지역 기능 공백 구역 / 기능 공백 구역 → 주민 수요)와 notes(AI 검토 의견 2~4줄: 우선 살필 곳과 까닭, 다른 자료와 겹치는 점(예: 단절 우려 시설 주변이 이미 기능 공백 구역인지), 다음 시설이 가장 먼 곳. 문서에 자동으로 들어가는 총계·기능별·읍면별 분포는 되풀이하지 않음). notes의 숫자·시설은 이번 대화에서 도구로 확인한 것만 씁니다. 필요하면 문서를 만들기 전에 도구(area_overview·gap_areas·search_facilities 등)로 먼저 확인합니다.
 - "이 내용 보고용으로 정리해 줘"처럼 대화에서 확인한 내용(공백 구역·개설 효과·입지 후보·사전 검토 등)을 정리할 때는 make_document(kind=대화요약, title, lines)를 씁니다. lines에는 이 대화에서 도구로 확인한 사실만 개조식으로 넣습니다.
 - 공공 체육시설·공원 (10/26): 공공 체육시설(체육센터·테니스장·파크골프장·게이트볼장·축구장 등 구장, 운동시설 있는 공원)은 function_id 'G:공공체육', 공원(근린·어린이·소공원)은 'P10.1.04'입니다. 민간 헬스장·필라테스는 P03.3.01이라 섞지 않습니다.
   · 폐쇄 확정된 공공 체육시설·공원의 공백 판정·예산 검토 대상("체육시설·공원 공백", "공원 없어진 곳 심각한 데", "생활체육시설 예산 신청할 만한 곳")은 sport_park.
@@ -294,7 +296,10 @@ TOOLS = [
         "since": {"type": "string", "description": "엑셀: YYYY-MM-DD, 이 날 이후 폐업한 곳만 ('이번 주', '이번 달' 등 기간을 말하면 넣음)"},
         "fid": {"type": "string", "description": "시설 한 곳 요약(관계 기관 전달용)일 때 그 시설 fid. 사전 검토한 시설도 됨"},
         "fids": {"type": "array", "items": {"type": "string"}, "description": "앞 목록의 여러 시설을 한 문서로 요약할 때 그 fid들"},
-        "dong": {"type": "string", "description": "행정동 하나로 좁힌 요약·엑셀 (예: 해안동)"}}, ["kind"]),
+        "dong": {"type": "string", "description": "행정동 하나로 좁힌 요약·엑셀 (예: 해안동)"},
+        "sections": {"type": "array", "items": {"type": "string", "enum": D.SECTIONS}, "description": "보고서PDF·요약에 담을 주제. 담당자가 요청한 주제만 넣음 (예: 단절 우려 시설 정리 → ['단절 우려']). 일일 보고 전체를 원할 때만 비움"},
+        "extra_sections": {"type": "array", "items": {"type": "string", "enum": D.SECTIONS}, "description": "요청 주제를 판단하는 데 도움이 되는 참고 주제 (AI가 판단해 붙임, 0~2개). 예: 단절 우려 → 같은 지역 '기능 공백 구역'"},
+        "notes": {"type": "array", "items": {"type": "string"}, "description": "AI 검토 의견 2~4줄, 개조식(명사형). 이 대화에서 도구로 확인한 사실·숫자만 (예: 기능별 분포, 다음 시설이 가장 먼 곳, 우선 살필 곳과 까닭)"}}, ["kind"]),
     _t("answer", "담당자에게 하는 최종 답. 반드시 마지막에 한 번.",
        {"key": {"type": "string", "description": "판단이 필요한 질문일 때만: 에이전트의 핵심 판단 한 문장 (예: '중대1동·백안·태정경로당 세 곳을 돌아가며 운영하는 것이 효율적일 것으로 보입니다'). 화면에 강조해 보임. 단순 조회 답이면 비움"},
         "text": {"type": "string", "description": "2~4문장, 경어체(~입니다/~습니다). 한 문장에 사실 하나, 40자 안팎(화면에서 첫 문장은 결론, 나머지는 한 줄씩 점 목록). key를 썼으면 key를 되풀이하지 말고 근거 숫자와 할 일만"}, "quick_replies": {"type": "array", "items": {"type": "string"}, "description": "지금 대화에서 이어서 할 다음 업무 2~4개. 공공기관 용어의 짧은 명사구(예: '공산동 공백 구역 상세', '순회 진료 소관 부서 확인', '도보 접근 취약 동네'). '우리 구', '~힘든 동네', '~볼래요' 같은 구어는 쓰지 않음. 순회·이동 서비스 대화에 '개설 효과'처럼 맞지 않는 업무를 넣지 않음"}}, ["text"]),
@@ -831,6 +836,23 @@ class GovChat:
             return self._propose(st, a, blocks)
         if name == "make_document":
             kind = a.get("kind"); kw = (str(a.get("keyword") or "").strip() or None); q = {"gu": gu or ""}
+            sec = [x for x in (a.get("sections") or []) if x in D.SECTIONS]
+            if sec and kind in ("보고서PDF", "요약", "개조식요약") and not a.get("fid") and not a.get("fids"):   # (10/30 헌준님) 요청 주제만 + AI 참고 자료·검토 의견
+                ext = [x for x in (a.get("extra_sections") or []) if x in D.SECTIONS and x not in sec][:2]
+                notes = [re.sub(r"^\s*[-○□·•]\s*", "", str(x)).strip() for x in (a.get("notes") or []) if str(x).strip()][:4]
+                if notes:
+                    bad = self._check(dict(st, used_now=["propose_action"], screen_done=True), "\n".join(l + "." for l in notes), st.get("_ctx", ""))
+                    if bad and bad != "style" and not str(bad).startswith("jargon:"): return {"오류": f"검토 의견에 자료에 없는 내용이 있음({bad}) · 도구 결과에 있는 숫자·시설만 쓰거나 notes를 비울 것"}
+                tt = str(a.get("title") or "").strip()[:60] or f"{gu or '대구'} {' · '.join(sec)} 현황"
+                if kind == "보고서PDF":
+                    import base64
+                    nq = base64.urlsafe_b64encode(json.dumps(notes, ensure_ascii=False).encode("utf-8")).decode("ascii").rstrip("=") if notes else ""
+                    url = "/api/gov/doc?" + _qs(dict(q, kind="report", title=tt, sec=",".join(sec), ext=",".join(ext), notes=nq, dong=a.get("dong") or ""))
+                    blocks.append({"kind": "doc", "fmt": "pdf", "title": f"{tt} · {gu or '대구 전체'}", "sub": "인쇄 창에서 'PDF로 저장' 선택", "url": url})
+                else:
+                    txt = D.focus_text(b, gu, tt, sec, ext, notes, a.get("dong"))
+                    blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {tt}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
+                return {"문서": "주제별 문서 표시", "제목": tt, "주제": sec, "참고": ext, "검토의견": len(notes), "답 안내": "한 문장으로 무엇을 만들었는지만 (예: '군위군 단절 우려 시설 보고서입니다.') · 담은 항목·참고 자료·버튼 사용법·확인 요청은 말하지 않음"}
             if kind == "보고서PDF":
                 tt = str(a.get("title") or "").strip()[:60]
                 url = "/api/gov/doc?" + _qs(dict(q, kind="report", title=tt))

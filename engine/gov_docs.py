@@ -283,6 +283,110 @@ def report_html(b, gu=None, run=None, auto_print=False, title=None):
     H.append("</body></html>")
     return "".join(H)
 
+
+# ── 주제별 문서 (10/30 헌준님): 담당자가 요청한 주제만 + AI가 판단해 붙인 참고 자료·검토 의견 ──
+#  sections: 본문 주제 / extras: AI가 덧붙인 참고 주제 / notes: AI 검토 의견(업무 보조가 도구 결과와 대조해 통과한 줄만)
+SECTIONS = ["공백 심각도", "폐업 확인", "검토 완료", "기능 공백 구역", "단절 우려", "주민 수요"]
+def _fn(x): return re.sub(r"(\S+) 살 곳", r"\1 구입", str(x or ""))   # 지자체 문서는 행정 용어로 ('식료품 살 곳' → '식료품 구입')
+def _cnt(rs, key):
+    c = {}
+    for r in rs: k = r.get(key) or "기타"; c[k] = c.get(k, 0) + 1
+    return " · ".join(f"{k} {v}곳" for k, v in sorted(c.items(), key=lambda x: -x[1]))
+def _sec_html(name, R, b, e, full):
+    H = []; lim = 60 if full else 10
+    if name == "공백 심각도":
+        it, wt = R["항목"], R["관찰"]
+        H.append(f"<div class='kpi'><div class='u'><b>{sum(1 for r in it if r.get('등급') == '긴급')}</b><span>긴급</span></div><div class='a'><b>{sum(1 for r in it if r.get('등급') != '긴급')}</b><span>주의</span></div><div class='w'><b>{len(wt)}</b><span>관찰</span></div></div>")
+        if not (it or wt): H.append("<p class='none'>해당 없음</p>")
+        for r in sorted(it, key=lambda r: r.get("등급") != "긴급"):
+            H.append(f"<div class='item'><h3><span class='lv{' u' if r.get('등급') == '긴급' else ''}'>{e(r['등급'])}</span>{e(r['상호'])}</h3><p>{e(r['업종'])} · {e(r['구군'])} {e(_loc(r, False))} · {e(_d(r.get('폐업일자')))} 폐업</p><p><b>영향</b> {e(_impact(r))}</p>")
+            if r.get("대응"): H.append("<p><b>검토할 일</b></p><ul>" + "".join(f"<li>{e(a['할일'])}" + (f" ({e(a['담당'])})" if a.get("담당") else "") + "</li>" for a in r["대응"]) + "</ul>")
+            H.append("</div>")
+        if wt:
+            H.append("<table><tr><th>시설</th><th>위치</th><th>폐업일</th><th>판단 근거</th></tr>" + "".join(f"<tr><td>{e(r['상호'])}<br><small>{e(r['업종'])}</small></td><td>{e(r['구군'])} {e(_loc(r, False))}</td><td>{e(_md(r.get('폐업일자')))}</td><td>{e(r.get('까닭'))}</td></tr>" for r in wt) + "</table>")
+    elif name == "폐업 확인":
+        rs = R["확인요청"]
+        if not rs: H.append("<p class='none'>해당 없음</p>")
+        else: H.append("<table><tr><th>시설</th><th>위치</th><th>폐업 시 예상</th><th>전화</th></tr>" + "".join(f"<tr><td>{e(r['상호'])}<br><small>{e(r['업종'])}</small></td><td>{e(r['구군'])} {e(_loc(r, False))}</td><td>{e(r.get('닫았다면') or '')}</td><td>{e(r.get('전화') or '')}</td></tr>" for r in rs[:lim]) + "</table>")
+    elif name == "검토 완료":
+        rs = [r for r in R["검토완료"] if r.get("확정일") == b["날짜"]]
+        if not rs: H.append(f"<p class='none'>{e(_d(b['날짜']))} 확정분 없음</p>")
+        else: H.append("<table><tr><th>시설</th><th>위치</th><th>폐업일</th><th>공백이 없는 까닭</th></tr>" + "".join(f"<tr><td>{e(r['상호'])}<br><small>{e(r['업종'])}</small></td><td>{e(r['구군'])} {e(_loc(r, False))}</td><td>{e(_md(r.get('폐업일자')))}</td><td>{e(r.get('까닭'))}</td></tr>" for r in rs[:lim]) + "</table>")
+    elif name == "기능 공백 구역":
+        rs = sorted(R["공백구역"], key=lambda r: -(r.get("주민") or 0))
+        if not rs: H.append("<p class='none'>해당 없음</p>")
+        else:
+            H.append(f"<p class='meta'>총 {len(rs)}곳 · 시설별: {e(_cnt(rs, '시설'))}</p>")
+            H.append("<table><tr><th>위치</th><th>시설</th><th>주민(65세 이상)</th><th>최근접 도보</th></tr>" + "".join(f"<tr><td>{e(r['구군'])} {e(_loc(r, False))}</td><td>{e(r.get('시설'))}</td><td class='n'>{_n(r.get('주민'))}명({_n(r.get('65세이상'))}명)</td><td class='n'>{e(_km(r.get('최근접_m') or r.get('최근접_도보_m')))}</td></tr>" for r in rs[:lim]) + "</table>")
+            if len(rs) > lim: H.append(f"<p class='none'>외 {len(rs) - lim}곳</p>")
+    elif name == "단절 우려":
+        rs = sorted(R["단절우려"], key=lambda r: -(r.get("주민") or 0))
+        if not rs: H.append("<p class='none'>해당 없음</p>")
+        else:
+            H.append(f"<p class='meta'>총 {len(rs)}곳 · 기능별: {e(_fn(_cnt(rs, '기능')))} · 읍·면별: {e(_cnt(rs, '행정동'))}</p>")
+            H.append("<table><tr><th>시설</th><th>위치</th><th>기능</th><th>폐업 시 영향 주민(65세 이상)</th><th>다음 시설(직선)</th></tr>" + "".join(f"<tr><td>{e(r['상호'])}</td><td>{e(r['구군'])} {e(_loc(r, False))}</td><td>{e(_fn(r.get('기능')))}</td><td class='n'>{_n(r.get('주민'))}명({_n(r.get('65세이상'))}명)</td><td class='n'>{e(_km(r.get('가장가까운_직선_m')))}</td></tr>" for r in rs[:lim]) + "</table>")
+            if len(rs) > lim: H.append(f"<p class='none'>외 {len(rs) - lim}곳</p>")
+    elif name == "주민 수요":
+        rs = sorted(R["주민수요"], key=lambda r: -r["건수"])
+        if not rs: H.append("<p class='none'>해당 없음</p>")
+        else: H.append("<p class='none'>주민 상담에서 찾은 기능의 시설이 도보 거리 안에 없던 경우의 자동 집계 · 주민의 직접 설치 요청 아님</p><table><tr><th>위치</th><th>기능</th><th>건수</th><th>최근</th></tr>" + "".join(f"<tr><td>{e(r['구군'])} {e(r['행정동'])}</td><td>{e(r['기능이름'])}</td><td class='n'>{r['건수']}건</td><td>{e(_md(r.get('마지막')))}</td></tr>" for r in rs[:lim]) + "</table>")
+    return H
+SEC_TITLE = {"공백 심각도": "공백 심각도 (긴급·주의·관찰)", "폐업 확인": "폐업 확인 필요", "검토 완료": "검토 완료 (대체 시설이 있어 공백 없음)",
+             "기능 공백 구역": "기능 공백 구역 (생활 필수 시설 도보권 부재)", "단절 우려": "단절 우려 시설 (영업 중 · 폐업 시 대체 시설 없음)", "주민 수요": "도보권 미충족 상담 (최근 30일)"}
+def report_focus_html(b, gu, title, sections, extras=(), notes=(), dong=None, auto_print=False):
+    e = lambda x: html.escape(str(x if x is not None else ""))
+    R = rows(b, gu, dong); scope = _scope_title(gu) + (f" {dong}" if dong else "")
+    title = title or " · ".join(sections)
+    H = [f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>{e(title)} {e(_d(b['날짜']))}</title><style>{CSS}</style></head><body>",
+         "<div class='bar'><button class='sub' onclick='window.close()'>닫기</button><button onclick='window.print()'>PDF로 저장 · 인쇄</button></div><div class='sheet'>",
+         f"<h1>{e(title)}</h1><p class='meta'>{e(_dw(b['날짜']))} 기준 · {e(scope)} · 기능상속 AI 에이전트 작성</p>"]
+    k = 0
+    for sname in sections:
+        k += 1; H.append(f"<h2>{k}. {e(SEC_TITLE.get(sname, sname))}</h2>"); H += _sec_html(sname, R, b, e, True)
+    if notes:
+        k += 1; H.append(f"<h2>{k}. AI 검토 의견</h2><ul>" + "".join(f"<li>{e(x)}</li>" for x in notes) + "</ul>")
+    for sname in extras:
+        if sname in sections: continue
+        k += 1; H.append(f"<h2>{k}. 참고: {e(SEC_TITLE.get(sname, sname))}</h2>"); H += _sec_html(sname, R, b, e, False)
+    used = "".join(H)
+    H.append("<p class='foot'><b>용어</b> " + " · ".join(f"{a}: {v}" for a, v in GLOSS if a in used) + "</p>" if any(a in used for a, _ in GLOSS) else "")
+    H.append("<p class='foot'>자료: 행정안전부 지방행정 인허가, 소상공인시장진흥공단 상가정보 등 · 주민 수: 행정동 인구의 100m 단위 배분 추정 · AI 검토 의견은 도구 결과와 대조한 내용만 수록</p></div>")
+    if auto_print: H.append("<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300))</script>")
+    H.append("</body></html>")
+    return "".join(H)
+def focus_text(b, gu, title, sections, extras=(), notes=(), dong=None):
+    R = rows(b, gu, dong); scope = _scope_title(gu) + (f" {dong}" if dong else "")
+    L = [f"□ {title or ' · '.join(sections)} ({_d(b['날짜'])} 기준, {scope})"]
+    def sec(name, full):
+        lim = 60 if full else 5; out = []
+        if name == "단절 우려":
+            rs = sorted(R["단절우려"], key=lambda r: -(r.get("주민") or 0))
+            if not rs: return [" ○ 해당 없음"]
+            out.append(f" ○ 총 {len(rs)}곳 (기능별: {_fn(_cnt(rs, '기능'))})")
+            out += [f"  - {_loc(r)} {r['상호']}({_fn(r.get('기능'))}): 폐업 시 주민 {_n(r.get('주민'))}명(65세 이상 {_n(r.get('65세이상'))}명) 영향 · 다음 시설 직선 {_km(r.get('가장가까운_직선_m'))}" for r in rs[:lim]]
+        elif name == "기능 공백 구역":
+            rs = sorted(R["공백구역"], key=lambda r: -(r.get("주민") or 0))
+            if not rs: return [" ○ 해당 없음"]
+            out.append(f" ○ 총 {len(rs)}곳 (시설별: {_cnt(rs, '시설')})")
+            out += [f"  - {r['구군']} {_loc(r, False)} {r.get('시설')}: 도보 {_km(r.get('기준_m'))} 안에 없음 · 주민 {_n(r.get('주민'))}명(65세 이상 {_n(r.get('65세이상'))}명)" for r in rs[:lim]]
+        elif name == "공백 심각도":
+            it, wt = R["항목"], R["관찰"]
+            if not (it or wt): return [" ○ 해당 없음"]
+            out += [f" ○ {_loc(r)} {r['상호']} [{r['등급']}]: {_impact(r)}" for r in it] + [f" ○ {_loc(r)} {r['상호']} [관찰]: {r.get('까닭') or ''}" for r in wt]
+        elif name == "폐업 확인":
+            rs = R["확인요청"]; out += [f" ○ {_loc(r)} {r['상호']}({r['업종']})" + (f": 닫혔다면 {r['닫았다면']}" if r.get("닫았다면") else "") for r in rs[:lim]] or [" ○ 해당 없음"]
+        elif name == "검토 완료":
+            rs = [r for r in R["검토완료"] if r.get("확정일") == b["날짜"]]; out += [f" ○ {_loc(r)} {r['상호']}: {r.get('까닭') or ''}" for r in rs[:lim]] or [" ○ 해당 없음"]
+        elif name == "주민 수요":
+            rs = sorted(R["주민수요"], key=lambda r: -r["건수"]); out += [" ○ " + ", ".join(f"{r.get('행정동')} {r.get('기능이름')} {r['건수']}건" for r in rs[:6])] if rs else [" ○ 해당 없음"]
+        return out
+    for sname in sections: L.append(f"□ {SEC_TITLE.get(sname, sname)}"); L += sec(sname, True)
+    if notes: L.append("□ AI 검토 의견"); L += [f" ○ {x}" for x in notes]
+    for sname in extras:
+        if sname not in sections: L.append(f"□ 참고: {SEC_TITLE.get(sname, sname)}"); L += sec(sname, False)
+    L += gloss_lines("\n".join(L))
+    return "\n".join(L)
+
 # ── 엑셀 (.xlsx, 표준 라이브러리만) ──
 def _col(i):
     s = ""

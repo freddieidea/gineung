@@ -1,5 +1,5 @@
 # 지자체 업무 보조 대화 검사 (언어 모델 없이: 도구 계산·확인 카드 조건·답 검사·문서). 사용: python engine/test_gov_chat.py
-import os, sys, json, zipfile, io
+import re, os, sys, json, zipfile, io
 sys.path[:0] = [os.path.dirname(os.path.abspath(__file__)), os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")]
 import gov_agent as GA, gov_chat as GC, gov_docs as D
 fails = []
@@ -14,7 +14,7 @@ def T(n, a, st=None):
     bl = []; r = c._tool(st if st is not None else {}, n, a, bl); return r, bl
 # 첫 인사: 모델 없이 오늘 보고 숫자 그대로
 h = c.hello(); R = D.rows(b)
-check("첫 인사: 건수 나열 대신 오늘 할 일 (없으면 없다고)", ("할 일" in h["blocks"][1]["text"]) if (R["항목"] or R["확인요청"] or R["질문"]) else ("없습니다" in h["blocks"][1]["text"]), True)
+check("첫 인사: 건수 나열 대신 오늘 할 일 (없으면 없다고)", ("할 일" in h["blocks"][1]["text"]) if (R["항목"] or R["확인요청"] or R["질문"]) else bool(re.search(r"없습니다|없음", h["blocks"][1]["text"])), True)   # (10/30) 공공기관체 '없음'도 인정
 check("첫 인사: 집계 단축 버튼(구·군별 현황) 없음", "구·군별 현황" in h["options"], False)
 # 오늘의 보고 요약 = 보고서 합계
 r, bl = T("report_overview", {})
