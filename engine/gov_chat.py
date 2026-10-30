@@ -52,6 +52,7 @@ GOV_SOFTEN = [(re.compile(r"산책·쉼터( 시설)?"), "공원"), (re.compile(r
     (re.compile(r"\s*따라서 [^.!?\n]*(조치하거나 보고할|보고할|조치할) [^.!?\n]*없습니다\.?"), ""),
     (re.compile(r"(?<=[.!?])\s+[^.!?\n]*(확인해|안내해|알려|보여) 드릴 수 있습니다\.?\s*$"), ""),
     (re.compile(r"\s*[^.!?\n]*말씀해 주시면[^.!?\n]*(겠습니다|드리겠습니다)\.?"), ""),
+    (re.compile(r"[,\s]*[^.!?\n,]*(문서 칸|아래 문서|문서를 (확인|참고)|문서에 (담았|정리했))[^.!?\n]*[.!?]?"), "."),   # (10/30) 화면 속사정 말 ('보고용 요약은 문서 칸에 있습니다')
 ]
 SYSTEM = """당신은 대구광역시 구·군 담당 공무원의 업무를 돕는 AI 에이전트 '기능상속 업무 보조'입니다. 스스로 생각하고 판단하는 비서로서, 담당자가 묻는 뜻을 정확히 알아듣고 필요한 자료를 찾아 빈틈없이 답합니다.
 기능상속은 매일 아침 인허가·공공 자료로 문 닫은 시설을 찾고, 생활 필수 기능의 공백을 계산해 '오늘의 보고'를 만듭니다. 담당자 화면에는 오늘의 보고와 폐업 사전 검토가 기본으로 보이고, 당신은 그 옆에서 대화로 돕습니다.
@@ -59,6 +60,7 @@ SYSTEM = """당신은 대구광역시 구·군 담당 공무원의 업무를 돕
 [말투]
 - 담당자와는 경어체(합쇼체: ~입니다, ~습니다, ~하십시오)로 대화합니다. 문장은 짧고 깔끔하게, 공공기관 용어로 씁니다. "~임", "~함", "~됨" 같은 명사형 종결로 끝내지 않습니다(목록 줄의 짧은 명사구는 괜찮습니다).
 - 2~4문장(정책 비교·대응 의견처럼 근거가 많이 필요할 때만 5문장). 인사말·감탄·꾸밈말 없이 결론부터 말합니다.
+- 담당자가 인사·감사·격려("수고 많으십니다", "고생했어", "고마워요")를 건네면 사람 비서처럼 짧고 예의 있게 받은 뒤 필요한 말만 합니다 (10/30 헌준님). (좋은 예) "감사합니다. 오늘 달서구는 바로 조치할 건이 없습니다." "AI라서 ~이 없습니다"처럼 기계적으로 선을 긋는 말은 하지 않습니다.
 - 한눈에 읽히게 씁니다 (10/29 헌준님: 글이 많아 읽기 어려움). 화면은 첫 문장을 결론으로, 나머지 문장을 한 줄씩 점 목록으로 보여 줍니다. 그래서 한 문장에는 사실 하나만, 40자 안팎으로 씁니다. 쉼표로 여러 사실을 잇거나 괄호 안에 또 숫자를 넣지 않습니다(65세 이상 인원은 꼭 필요할 때만). 표·목록·카드에 이미 보이는 숫자와 이름은 글에서 되풀이하지 않습니다. 묻지 않은 배경(다른 분류, 안내 기간, 단절 우려 등)은 판단에 꼭 필요할 때만 한 구절로 덧붙입니다. 숫자는 판단에 꼭 필요한 3~4개만 쓰고, 나머지는 화면의 표·카드에 맡깁니다.
 - "동별로 나눠서"는 search_facilities를 구·키워드로 한 번 불러 '동별(전체 기준)' 건수를 씁니다. 동마다 따로 조회하지 않습니다.
 - 한 말에 여러 가지를 물으면(예: "경로당이랑 지역아동센터 몇 개, 문 닫은 데는") 하나도 빠뜨리지 않고 모두 답합니다. 조회 결과가 없으면 "○○동 경로당은 없습니다"처럼 없다고 분명히 말합니다("0곳입니다"라고 쓰지 않음).
@@ -128,6 +130,8 @@ SYSTEM = """당신은 대구광역시 구·군 담당 공무원의 업무를 돕
 - 문서를 만든 뒤에는 "○○ 요약입니다"처럼 한 문장이면 충분합니다. 담은 항목을 늘어놓거나 버튼 쓰는 법을 설명하지 않습니다(문서 칸에 버튼이 있음).
 - 기준의 까닭은 자료의 '까닭'을 그대로 전합니다. 다른 기준과 비교하거나 추론해서 까닭을 새로 만들지 않습니다.
 - 문서를 만들었다고 말하려면 반드시 이번 마디에 make_document를 호출해야 합니다.
+- 담당자가 특정 기능만 원하면("의료 관련만", "약국만", "경로당 쪽만") make_document의 only_functions에 그 말을 넣고, 창업·개설 유도로 풀 곳을 원하면 startup_only=true를 넣습니다. 형식만 바꿔 달라고 하면("PDF로 줘", "요약으로도") same_as_before=true로 앞 문서와 같은 내용을 만듭니다.
+- 담당자가 대응 방안·대책을 보고용으로 원하면("어떻게 대응해야 해? 과장님께 보고할 수 있게") 시설 정리 문서가 아니라 kind=대화요약으로, lines에 대상·영향·대응(할 일·담당·근거)·소관을 이번 대화에서 확인한 내용으로 담습니다. 시설 현황만 담은 문서는 대응을 묻는 보고에 맞지 않습니다.
 - 문서의 범위는 담당자가 요청한 주제만입니다 (10/30 헌준님). "○○ 단절 우려 시설 정리해 줘/보고서로" → make_document(kind=보고서PDF 또는 요약, sections=['단절 우려']). 일일 보고 전체(공백 심각도·폐업 확인 등 모든 항목)는 "오늘 보고서", "일일 보고"처럼 전체를 원할 때만 sections를 비워 만듭니다. 요청하지 않은 공백 심각도·폐업 확인 목록을 끼워 넣지 않습니다.
   · 담당자가 요청한 자료를 판단하는 데 실제로 도움이 되는 참고 자료는 스스로 판단해 붙입니다: extra_sections(0~2개, 예: 단절 우려 → 같은 지역 기능 공백 구역 / 기능 공백 구역 → 주민 수요)와 notes(AI 검토 의견 2~4줄: 우선 살필 곳과 까닭, 다른 자료와 겹치는 점(예: 단절 우려 시설 주변이 이미 기능 공백 구역인지), 다음 시설이 가장 먼 곳. 문서에 자동으로 들어가는 총계·기능별·읍면별 분포는 되풀이하지 않음). notes의 숫자·시설은 이번 대화에서 도구로 확인한 것만 씁니다. 필요하면 문서를 만들기 전에 도구(area_overview·gap_areas·search_facilities 등)로 먼저 확인합니다.
 - "이 내용 보고용으로 정리해 줘"처럼 대화에서 확인한 내용(공백 구역·개설 효과·입지 후보·사전 검토 등)을 정리할 때는 make_document(kind=대화요약, title, lines)를 씁니다. lines에는 이 대화에서 도구로 확인한 사실만 개조식으로 넣습니다.
@@ -298,6 +302,9 @@ TOOLS = [
         "fids": {"type": "array", "items": {"type": "string"}, "description": "앞 목록의 여러 시설을 한 문서로 요약할 때 그 fid들"},
         "dong": {"type": "string", "description": "행정동 하나로 좁힌 요약·엑셀 (예: 해안동)"},
         "sections": {"type": "array", "items": {"type": "string", "enum": D.SECTIONS}, "description": "보고서PDF·요약에 담을 주제. 담당자가 요청한 주제만 넣음 (예: 단절 우려 시설 정리 → ['단절 우려']). 일일 보고 전체를 원할 때만 비움"},
+        "only_functions": {"type": "array", "items": {"type": "string"}, "description": "담당자가 특정 기능·업종만 원할 때 그 말 (예: '의료 관련만' → ['의료'], '약국만' → ['약국'], '경로당 쪽만' → ['경로당']). 문서의 모든 주제에 같이 적용"},
+        "startup_only": {"type": "boolean", "description": "기능 공백 구역 중 창업 참고 구역만 (담당자가 창업·개설 유도로 풀 곳을 원할 때)"},
+        "same_as_before": {"type": "boolean", "description": "앞에서 만든 문서를 형식만 바꿈 ('PDF로 줘', '요약으로도'): 앞 문서의 주제·참고·검토 의견·범위를 그대로 씀"},
         "extra_sections": {"type": "array", "items": {"type": "string", "enum": D.SECTIONS}, "description": "요청 주제를 판단하는 데 도움이 되는 참고 주제 (AI가 판단해 붙임, 0~2개). 예: 단절 우려 → 같은 지역 '기능 공백 구역'"},
         "notes": {"type": "array", "items": {"type": "string"}, "description": "AI 검토 의견 2~4줄, 개조식(명사형). 이 대화에서 도구로 확인한 사실·숫자만 (예: 기능별 분포, 다음 시설이 가장 먼 곳, 우선 살필 곳과 까닭)"}}, ["kind"]),
     _t("answer", "담당자에게 하는 최종 답. 반드시 마지막에 한 번.",
@@ -837,9 +844,16 @@ class GovChat:
         if name == "make_document":
             kind = a.get("kind"); kw = (str(a.get("keyword") or "").strip() or None); q = {"gu": gu or ""}
             sec = [x for x in (a.get("sections") or []) if x in D.SECTIONS]
+            ld = st.get("last_doc") if kind in ("보고서PDF", "요약", "개조식요약") and not a.get("fid") and not a.get("fids") else None
+            if ld and a.get("same_as_before"):   # (10/30) 'PDF로 줘'처럼 형식만 바꾸면 앞 문서와 같은 내용으로
+                a = dict(ld, kind=kind); sec = ld["sections"]
             if sec and kind in ("보고서PDF", "요약", "개조식요약") and not a.get("fid") and not a.get("fids"):   # (10/30 헌준님) 요청 주제만 + AI 참고 자료·검토 의견
                 ext = [x for x in (a.get("extra_sections") or []) if x in D.SECTIONS and x not in sec][:2]
                 notes = [re.sub(r"^\s*[-○□·•]\s*", "", str(x)).strip() for x in (a.get("notes") or []) if str(x).strip()][:4]
+                only = [str(x).strip() for x in (a.get("only_functions") or []) if str(x).strip()][:6]; sto = bool(a.get("startup_only"))
+                RN = D.narrow(D.rows(b, gu, a.get("dong")), only, sto)
+                cnt = {s_: len(RN.get({"공백 심각도": "항목", "폐업 확인": "확인요청", "검토 완료": "검토완료", "기능 공백 구역": "공백구역", "단절 우려": "단절우려", "주민 수요": "주민수요"}[s_]) or []) for s_ in sec}
+                if only and not any(cnt.values()): return {"문서": "만들지 않음", "까닭": f"요청한 기능({', '.join(only)})에 해당하는 {', '.join(sec)} 자료가 없음 → 없다고 한 문장으로"}
                 if notes:
                     bad = self._check(dict(st, used_now=["propose_action"], screen_done=True), "\n".join(l + "." for l in notes), st.get("_ctx", ""))
                     if bad and bad != "style" and not str(bad).startswith("jargon:"): return {"오류": f"검토 의견에 자료에 없는 내용이 있음({bad}) · 도구 결과에 있는 숫자·시설만 쓰거나 notes를 비울 것"}
@@ -847,12 +861,13 @@ class GovChat:
                 if kind == "보고서PDF":
                     import base64
                     nq = base64.urlsafe_b64encode(json.dumps(notes, ensure_ascii=False).encode("utf-8")).decode("ascii").rstrip("=") if notes else ""
-                    url = "/api/gov/doc?" + _qs(dict(q, kind="report", title=tt, sec=",".join(sec), ext=",".join(ext), notes=nq, dong=a.get("dong") or ""))
-                    blocks.append({"kind": "doc", "fmt": "pdf", "title": f"{tt} · {gu or '대구 전체'}", "sub": "인쇄 창에서 'PDF로 저장' 선택", "url": url})
+                    url = "/api/gov/doc?" + _qs(dict(q, kind="report", title=tt, sec=",".join(sec), ext=",".join(ext), notes=nq, dong=a.get("dong") or "", only=",".join(only), startup="1" if sto else ""))
+                    blocks.append({"kind": "doc", "fmt": "pdf", "title": f"{tt} · {gu or '대구 전체'}", "sub": "인쇄 창에서 'PDF로 저장' 선택", "url": url, "focus_doc": True})
                 else:
-                    txt = D.focus_text(b, gu, tt, sec, ext, notes, a.get("dong"))
-                    blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {tt}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
-                return {"문서": "주제별 문서 표시", "제목": tt, "주제": sec, "참고": ext, "검토의견": len(notes), "답 안내": "한 문장으로 무엇을 만들었는지만 (예: '군위군 단절 우려 시설 보고서입니다.') · 담은 항목·참고 자료·버튼 사용법·확인 요청은 말하지 않음"}
+                    txt = D.focus_text(b, gu, tt, sec, ext, notes, a.get("dong"), only, sto)
+                    blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {tt}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt, "focus_doc": True})
+                st["last_doc"] = {"sections": sec, "extra_sections": ext, "notes": notes, "title": tt, "dong": a.get("dong"), "only_functions": only, "startup_only": sto}
+                return {"문서": "주제별 문서 표시", "제목": tt, "주제": sec, "담긴 수": cnt, "참고": ext, "검토의견": len(notes), "답 안내": "한 문장으로 무엇을 만들었는지만 (예: '군위군 단절 우려 시설 보고서입니다.') · 담은 항목·참고 자료·버튼 사용법·확인 요청은 말하지 않음"}
             if kind == "보고서PDF":
                 tt = str(a.get("title") or "").strip()[:60]
                 url = "/api/gov/doc?" + _qs(dict(q, kind="report", title=tt))
@@ -868,7 +883,7 @@ class GovChat:
                 if bad and bad != "style" and not str(bad).startswith("jargon:"): return {"오류": f"자료에 없는 내용이 있음({bad}) · 도구 결과에 있는 숫자·시설만 쓸 것"}
                 title = str(a.get("title") or "검토 결과").strip()[:60]
                 txt = "\n".join([f"□ {title} ({D._d(b['날짜'])})"] + [f" ○ {l}" for l in lines] + [" ※ 기능상속 AI 에이전트 산정 결과 · 개설 효과·사전 검토 수치는 추정치"])
-                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {title}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
+                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {title}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt, "focus_doc": True})
                 return {"문서": "대화 내용 요약 표시", "줄수": len(lines) + 2}
             if kind == "요약" and a.get("fids"):
                 parts = []; names = []
@@ -880,7 +895,7 @@ class GovChat:
                     parts.append(D.facility_text(r, kd, b["날짜"])); names.append(r.get("상호"))
                 if not parts: return {"오류": "보고서나 사전 검토에 없는 시설들"}
                 txt = "\n\n".join(parts)
-                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {names[0]}" + (f" 외 {len(names) - 1}곳" if len(names) > 1 else ""), "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
+                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {names[0]}" + (f" 외 {len(names) - 1}곳" if len(names) > 1 else ""), "sub": "복사해 기관 양식에 붙여 넣기", "text": txt, "focus_doc": True})
                 return {"문서": "여러 시설 요약 표시", "시설수": len(names), "시설": names}
             if kind == "요약" and a.get("fid"):
                 fid = str(a["fid"]); x = self._find_fid(fid); pre = (st.get("pre") or {}).get(fid)
@@ -888,11 +903,11 @@ class GovChat:
                 elif pre: r, kd = pre, "사전검토"
                 else: return {"오류": "보고서나 사전 검토에 없는 시설 (영업 중 시설은 먼저 pre_review)"}
                 txt = D.facility_text(r, kd, b["날짜"])
-                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {r.get('상호')}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
+                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {r.get('상호')}", "sub": "복사해 기관 양식에 붙여 넣기", "text": txt, "focus_doc": True})
                 return {"문서": "시설 요약 표시", "시설": r.get("상호"), "줄수": txt.count("\n") + 1}
             if kind == "요약":
                 txt = D.summary_text(b, gu, kw, a.get("dong"), where=self._where)
-                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {gu or '대구 전체'}" + (f" · {kw}" if kw else ""), "sub": "복사해 기관 양식에 붙여 넣기", "text": txt})
+                blocks.append({"kind": "doc", "fmt": "text", "title": f"요약 · {gu or '대구 전체'}" + (f" · {kw}" if kw else ""), "sub": "복사해 기관 양식에 붙여 넣기", "text": txt, "focus_doc": True})
                 return {"문서": "요약 표시", "줄수": txt.count("\n") + 1, "본문": txt}
             if kind == "엑셀":
                 ts = [t for t in (a.get("tables") or []) if t in D.TABLES] or ["폐업", "확인요청", "공백구역"]
@@ -1103,7 +1118,7 @@ class GovChat:
                 out["blocks"] = [{"text": x} for x in fixed.split("\n") if x.strip()] + rest; out["_said"] = fixed; meta["repaired"] = meta.pop("bad2")
         if meta.get("bad2") and str(meta["bad2"]).startswith(("num:", "name:")) and out.get("_said"):   # 고쳐 쓰기도 안 되면 문제 문장만 빼고 나머지는 살림
             sents = [x for x in re.split(r"(?<=[.!?])\s+", out["_said"]) if x.strip()]; bad_ = meta["bad2"]
-            for _ in range(4):
+            for _ in range(8):
                 key = str(bad_).split(":", 1)[1]
                 sents = [x for x in sents if key not in x.replace(",", "") and key not in re.sub(r"\s", "", x)]
                 bad_ = self._check(st, " ".join(sents), st.get("_ctx_last", "")) if sents else "empty"
@@ -1201,6 +1216,8 @@ class GovChat:
             if sig: seen_b[sig] = len(uniq)
             uniq.append(b_)
         blocks = uniq
+        if any(b_.get("focus_doc") for b_ in blocks):   # (10/30 헌준님: 원하는 내용만) 문서를 만든 마디에는 문서를 만들려고 조회한 목록·표를 함께 띄우지 않음
+            blocks = [b_ for b_ in blocks if b_.get("kind") not in ("list", "zones", "table", "card", "effect")]
         st["used_now"] = used; st["_ctx_last"] = "\n".join(seen)
         bad = self._check(st, body, "\n".join(seen))
         quick = [str(q).strip()[:24] for q in (final.get("quick_replies") or []) if str(q).strip()][:4]

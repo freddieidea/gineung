@@ -288,6 +288,25 @@ def report_html(b, gu=None, run=None, auto_print=False, title=None):
 #  sections: 본문 주제 / extras: AI가 덧붙인 참고 주제 / notes: AI 검토 의견(업무 보조가 도구 결과와 대조해 통과한 줄만)
 SECTIONS = ["공백 심각도", "폐업 확인", "검토 완료", "기능 공백 구역", "단절 우려", "주민 수요"]
 def _fn(x): return re.sub(r"(\S+) 살 곳", r"\1 구입", str(x or ""))   # 지자체 문서는 행정 용어로 ('식료품 살 곳' → '식료품 구입')
+FN_EXP = {"의료": ["약국", "의원", "병원", "진료", "처방", "보건", "치과", "한의", "의약", "응급", "분만"], "보건": ["약국", "의원", "병원", "진료", "처방", "보건", "치과", "한의", "의약"],
+          "식료품": ["식료품", "슈퍼", "마트", "식품", "농협", "하나로", "시장"], "돌봄": ["돌봄", "요양", "어린이집", "유치원", "경로당", "복지", "아동"],
+          "복지": ["복지", "경로당", "요양", "돌봄", "급식"], "교육": ["학교", "유치원", "어린이집", "학원", "도서관"], "체육": ["체육", "운동", "공원"], "공원": ["공원"]}
+def narrow(R, only=(), startup=False):
+    """(10/30 헌준님) 요청한 기능만: only(기능·업종 낱말, '의료'처럼 묶음 말도 됨), startup(창업 참고 구역만)"""
+    ws = []
+    for w in only or ():
+        w = str(w).strip()
+        if w: ws += FN_EXP.get(w.replace(" 관련", "").replace("관련", ""), [w])
+    if not ws and not startup: return R
+    rx = re.compile("|".join(map(re.escape, ws))) if ws else None
+    hit = lambda r: rx.search(" ".join(str(r.get(k) or "") for k in ("기능", "업종", "시설", "기능이름", "종류")))
+    R = dict(R)
+    for k in ("항목", "확인요청", "관찰", "검토완료", "공백구역", "주민수요", "단절우려"):
+        v = R.get(k) or []
+        if rx: v = [r for r in v if hit(r)]
+        if startup and k == "공백구역": v = [r for r in v if r.get("창업참고")]
+        R[k] = v
+    return R
 def _cnt(rs, key):
     c = {}
     for r in rs: k = r.get(key) or "기타"; c[k] = c.get(k, 0) + 1
@@ -333,9 +352,9 @@ def _sec_html(name, R, b, e, full):
     return H
 SEC_TITLE = {"공백 심각도": "공백 심각도 (긴급·주의·관찰)", "폐업 확인": "폐업 확인 필요", "검토 완료": "검토 완료 (대체 시설이 있어 공백 없음)",
              "기능 공백 구역": "기능 공백 구역 (생활 필수 시설 도보권 부재)", "단절 우려": "단절 우려 시설 (영업 중 · 폐업 시 대체 시설 없음)", "주민 수요": "도보권 미충족 상담 (최근 30일)"}
-def report_focus_html(b, gu, title, sections, extras=(), notes=(), dong=None, auto_print=False):
+def report_focus_html(b, gu, title, sections, extras=(), notes=(), dong=None, auto_print=False, only=(), startup=False):
     e = lambda x: html.escape(str(x if x is not None else ""))
-    R = rows(b, gu, dong); scope = _scope_title(gu) + (f" {dong}" if dong else "")
+    R = narrow(rows(b, gu, dong), only, startup); scope = _scope_title(gu) + (f" {dong}" if dong else "")
     title = title or " · ".join(sections)
     H = [f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>{e(title)} {e(_d(b['날짜']))}</title><style>{CSS}</style></head><body>",
          "<div class='bar'><button class='sub' onclick='window.close()'>닫기</button><button onclick='window.print()'>PDF로 저장 · 인쇄</button></div><div class='sheet'>",
@@ -354,8 +373,8 @@ def report_focus_html(b, gu, title, sections, extras=(), notes=(), dong=None, au
     if auto_print: H.append("<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300))</script>")
     H.append("</body></html>")
     return "".join(H)
-def focus_text(b, gu, title, sections, extras=(), notes=(), dong=None):
-    R = rows(b, gu, dong); scope = _scope_title(gu) + (f" {dong}" if dong else "")
+def focus_text(b, gu, title, sections, extras=(), notes=(), dong=None, only=(), startup=False):
+    R = narrow(rows(b, gu, dong), only, startup); scope = _scope_title(gu) + (f" {dong}" if dong else "")
     L = [f"□ {title or ' · '.join(sections)} ({_d(b['날짜'])} 기준, {scope})"]
     def sec(name, full):
         lim = 60 if full else 5; out = []

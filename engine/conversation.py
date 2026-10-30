@@ -822,6 +822,8 @@ class Conversation:
                 notes.append("블로그 검색이 잠시 안 돼서 가까운 순서로 보여 드려요.")
         elif reach: reach = self._balanced(st, reach, cost, mode, res)
         if fitx and reach: reach = sorted(reach, key=lambda c: -min(c.get("_맞춤", 0), 1))   # 블로그·거리 균형으로 섞인 뒤에도 상황에 맞는 곳이 앞에
+        if fitx and any(c.get("_맞춤") for c in reach):   # (10/30 헌준님) 상황에 맞는 곳이 있으면 그곳들만 보여 줌. 맞는 곳이 한두 곳뿐이라고 빈자리를 가까운 아무 가게(고깃집·육회집)로 채우지 않음
+            reach = [c for c in reach if c.get("_맞춤")]; unsure = [c for c in unsure if c.get("_맞춤")]; res["맞춤만"] = True
         unsure_far = [c for c in unsure if not c["_갈수있음"]]
         unsure = sorted([c for c in unsure if c["_갈수있음"]], key=cost)
         if not reach and not unsure and unsure_far: far = sorted(far + unsure_far, key=cost)   # (10/29 헌준님) 확실한 곳만 멀리 보여 주면 더 가까운 '운영 여부 확인 필요' 시설(예: 같은 구 노인종합복지관)이 빠짐 → 함께 거리순으로

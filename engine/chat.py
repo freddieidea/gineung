@@ -47,6 +47,7 @@ SOFTEN = [(re.compile(r"(저희|우리)가 알기 어려워요"), "자료로는 
           # 가게에 높임말 (돈까스식당은 문을 닫으셨네요 → 닫았네요)
           (re.compile(r"닫으셨"), "닫았"), (re.compile(r"(문을? )?열어 계시고"), "열려 있고"), (re.compile(r"(문을? )?열어 계세요"), "열려 있어요"), (re.compile(r"문을 열어 있어요"), "문을 열었어요"), (re.compile(r"문을 열어 있는"), "문을 연"), (re.compile(r"(오늘 )?문을 열어 있고"), r"\1문을 열었고"), (re.compile(r"열어 있고"), "열려 있고"), (re.compile(r"(문을? )?여셨"), "열었")]
 SOFTEN.append((re.compile(r"(\d)층 곳"), r"\1층에 있는 곳"))
+SOFTEN += [(re.compile(r"우리(가|는|도) (알 수 없|모르|몰라|확인할 수 없)"), r"저희\1 \2"), (re.compile(r"우리 쪽에서"), "저희 쪽에서")]   # (10/30) 상담원이 서비스를 '우리'라고 부르던 것
 HERE_RX = re.compile(r"내\s?위치|제\s?위치|여기서|여기에서|지금\s?(있는|계신|여기|내가 있는)\s?(곳|데|자리)?|현재\s?위치|우리\s?집에서|집에서")   # 주민의 지금 위치를 가리키는 말
 SOFTEN += [(re.compile(r"하는 것이 가능해요"), "할 수 있어요"), (re.compile(r"이용이 가능해요"), "이용할 수 있어요"), (re.compile(r"이용 가능해요"), "이용할 수 있어요"),   # 10/25 밤: 번역투 (헌준님)
            (re.compile(r"보행이 어려운"), "걷기 어려운"), (re.compile(r"해당 (약국|병원|의원|가게|곳|시설)"), r"이 \1")]
@@ -178,6 +179,7 @@ ChatGPT·Claude 같은 대화형 AI처럼, 사람과 이야기하듯 자연스�
 - 엔진이 종류를 조금 넓혀 찾은 사정은 주민 눈에 다른 곳일 때만 말합니다.
   (나쁜 예) 한식집이 문을 닫았는데 "똘방천과 같은 기타 한식집은 근처에서 찾지 못해서 비슷한 한식집으로 골랐어요."  (좋은 예) "똘방천 대신 걸어서 가실 만한 한식집이에요."
   (좋은 예) 내과를 찾는데 가정의학과가 섞였을 때 "가까운 내과가 없어서 혈압약 처방도 하는 가정의학과를 함께 보여 드려요."
+- 전화로 확인하시라는 말은 한 대화에서 되풀이하지 않습니다. 앞 답에서 이미 권했으면 새로 꼭 물어봐야 할 것이 생겼을 때만 씁니다. 상식으로 아는 것(치킨집·고깃집에서 술을 파는지, 카페에 음료가 있는지)은 확인을 권하지 않습니다 (10/30 헌준님).
 - 전화로 확인하시라는 말은 버릇처럼 붙이지 않습니다. 모르고 가면 헛걸음하는 것(진료·급식·프로그램 시간, 예약, 이용 자격, 주민이 콕 집어 찾는 메뉴나 물건이 있는지)만, 한 답에 한 번, 무엇을 물어보면 되는지 구체적으로 씁니다. 분위기·맛은 전화로 알 수 있는 것이 아니니 전화를 권하지 않습니다.
   (나쁜 예) "메뉴는 가시기 전에 전화로 한번 확인해 보세요."(주민이 메뉴를 묻지 않음) "가게 분위기는 전화로 확인해 보세요."
   (좋은 예) 주민이 "칼국수 하는 데"를 찾았는데 이름으로 알 수 없을 때 "칼국수를 하는지는 가시기 전에 전화로 물어보세요."
@@ -201,9 +203,14 @@ ChatGPT·Claude 같은 대화형 AI처럼, 사람과 이야기하듯 자연스�
   (예) 아이와 비 오는 날 → 실내(키즈카페, 도서관, 박물관). 공원은 내밀지 않습니다.
   (예) 제사·명절 장보기 → 전통시장만이 아니라 가까운 마트·농협 하나로마트·떡집도 함께 떠올립니다(fit: 시장, 마트, 농협, 하나로, 식자재).
   (예) 다이어트 중인데 친구들과 고기 → fit: 샤브, 소고기, 오리, 쌈, 수육 / avoid: 곱창, 막창, 무한리필, 대패
-  (예) 20대 여성이 좋아하는 예쁜 식당·인스타 감성 맛집·분위기 있는 곳 → 젊은 사람들이 좋아하는 아기자기하고 분위기 있는 곳. fit: 파스타, 이탈리안, 브런치, 양식, 비스트로, 다이닝, 스테이크, 초밥, 오마카세 / avoid: 고기 구이, 갈비, 삼겹, 막창, 곱창, 국밥, 해장, 백반, 기사식당, 족발, 치킨, 포차, 호프, 무한리필 / sort: 블로그 (젊은 사람들의 후기·SNS 기록이 많은 곳). 비슷한 종류로 넓히더라도 고깃집·국밥집처럼 전혀 다른 곳은 내밀지 않습니다.
+  (예) 20대 여성이 좋아하는 예쁜 식당·인스타 감성 맛집·분위기 있는 곳 → 젊은 사람들이 좋아하는 아기자기하고 분위기 있는 곳. fit: 파스타, 이탈리안, 브런치, 양식, 비스트로, 다이닝, 스테이크, 초밥, 오마카세 / avoid: 고기 구이, 갈비, 삼겹, 막창, 곱창, 국밥, 해장, 백반, 기사식당, 족발, 치킨, 포차, 호프, 무한리필 / sort: 블로그 (젊은 사람들의 후기·SNS 기록이 많은 곳). 카페를 찾으면 occasion '분위기 좋은 카페'(디저트를 말하면 '디저트 카페')를 넣어 작은 개인 카페·디저트 카페가 먼저 나오게 합니다. 블로그 글 수는 같은 성격의 가게 안에서 순서를 정할 때만 쓰고, 글이 많다는 이유로 성격이 다른 가게(고깃집·국밥집)를 내밀지 않습니다 (10/30 헌준님). 비슷한 종류로 넓히더라도 고깃집·국밥집처럼 전혀 다른 곳은 내밀지 않습니다.
   (예) 중·고등학생 아이들과 → fit: 분식, 돈가스, 피자, 버거, 무한리필 / avoid: 주점, 호프, 한정식, 오마카세
   (예) 외국인 친구와 한국 음식 → fit: 불고기, 비빔밥, 한정식, 갈비, 삼계탕, 고기 / avoid: 일식, 중식, 양식, 피자, 곱창, 순대, 산낙지
+- 조건이 여럿이면 하나만 맞추지 않습니다 (10/30 헌준님). 먼저 '무슨 자리인지(누구와·왜)'로 어떤 가게가 어울리는지 정하고, 식성·몸·때·형편 같은 조건은 그 안에서 빼거나 고르는 데 씁니다. 한 조건(회를 못 드심)만 맞춘 국밥집·닭갈비집을 가족 저녁 자리에 내밀지 않습니다.
+  (예) 토요일 저녁 부모님·아내와 넷이, 엄마는 회를 못 드심, 시끄럽지 않은 곳 → fit: 한정식, 정찬, 한우, 갈비, 가든 / avoid: 횟집, 회, 초밥, 일식, 주점, 포차, 호프, 국밥, 분식, 무한리필
+  (예) 아이 둘·아내와 저녁, 아이들은 매운 것 못 먹고 나는 반주 → fit: 돼지갈비, 갈비, 고기, 한식 / avoid: 마라, 낙지, 쭈꾸미, 매운, 주점, 바
+- 낱말이 같은 가게가 아니라, 주민에게 필요한 '일'을 해 주는 곳을 찾습니다. (예) 스마트폰 쓰는 법 배우기 → 복지관·평생학습관·행정복지센터의 디지털 교육(휴대폰 가게 X) / 남자 펌 → 동네 미용실 대부분이 함(멀리 있는 바버샵만 X) / 브런치 → 브런치 카페·양식(백반집 X)
+- avoid_words에는 그 말의 뜻 전체를 담습니다. (예) 고기를 별로 안 좋아함 → 고기, 갈비, 삼겹, 불고기, 돈가스, 돈까스, 치킨, 곱창, 막창, 족발, 보쌈, 고깃집 / 해산물을 못 먹음 → 해물, 해산물, 회, 초밥, 조개, 생선, 아구, 낙지, 꽃게, 해물순두부
 - 주민이 대화 중에 사정을 더하면("근데 걔가 매운 거 못 먹어", "아버지가 틀니라") 앞 조건을 그대로 두고 fit_words·avoid_words만 더해 다시 찾습니다. 위에서 보여 드린 곳을 고르며 말로만 답하지 않습니다.
 - 결과에 '상황 맞춤' 표시가 붙은 곳만 그 사정에 맞는다고 말합니다. 표시가 없는 곳을 맞다고 하지 않고, 사정에 맞는 곳이 없으면 솔직히 말하고 다른 길(다른 종류·조금 먼 곳)을 권합니다.
 - 상황에 맞는 말투를 씁니다. 조문·병문안·아픈 아이·이별처럼 무거운 자리에는 들뜬 말("좋은 곳이에요", "즐거운 시간")을 쓰지 않고 차분하게 짧게 말합니다. 아이가 아프거나 급한 일에는 위로보다 갈 곳과 할 일을 먼저 말합니다.
@@ -1075,6 +1082,8 @@ class Chat:
             st.clear(); st.update(snap); st["msgs"] = msnap
             if emit: emit("reset", "다시 다듬는 중")
             out, bad = self._run(st, text, SONNET, first, emit); meta.update(model="sonnet", esc=True, bad2=bad)
+        rvn = st.pop("_review_note", None)
+        if rvn: meta["review"] = rvn
         out["_meta"] = meta   # 점검용 (화면으로는 보내지 않음)
         gu = st.pop("_demand_note", None)
         if gu and re.search(r"열이|열나|응급|다쳤|피가|숨을? ?못|경련|토해|급해|급한|쓰러", st.get("said_all") or ""): gu = None   # (10/29) 아이가 아프거나 급한 상황에서는 구청 전달 안내를 붙이지 않음 (기록은 남김)
@@ -1150,8 +1159,8 @@ class Chat:
         msgs = list(st.get("msgs", [])) + [{"role": "user", "content": self._user_content(st, text, first)}]
         allowed_phones = set(PHONE.findall(json.dumps(st.get("last_facts") or [], ensure_ascii=False)))
         for c in st.get("last_rank") or []: allowed_phones |= set(PHONE.findall(str(c.get("전화") or "")))
-        cards, blogs, extra, links = [], [], [], []; final = None; svc = None; tools = self.tools
-        for _ in range(7):
+        cards, blogs, extra, links = [], [], [], []; final = None; svc = None; tools = self.tools; reviewed = 0
+        for _ in range(9):
             try:
                 r = self._call(model, tools, msgs, emit)
             except anthropic.BadRequestError as e:
@@ -1176,6 +1185,15 @@ class Chat:
                     if u and all(u != x["url"] for x in links): links.append({"url": u, "제목": getattr(ct, "title", "") or u})
             uses = [b for b in r.content if getattr(b, "type", "") == "tool_use"]
             ans = next((u for u in uses if u.name == "answer"), None)
+            if ans and reviewed < 1 and cards and st.get("last_rank") and self._need_review(st, text, first):
+                # (10/30 헌준님: 조건을 꼬치꼬치 말하면 사회적 맥락을 놓친 답이 나오던 것) 주민에게 보이기 전에 사람의 상식으로 검토하고, 맞지 않으면 다시 찾게 함 (한 마디에 한 번)
+                reviewed += 1; rv = self._review(st, text, ans.input)
+                if rv:
+                    if emit: emit("reset", "더 맞는 곳으로 다시 고르는 중")
+                    msgs.append({"role": "assistant", "content": r.content})
+                    msgs.append({"role": "user", "content": [{"type": "tool_result", "tool_use_id": u.id, "content": (rv if u.name == "answer" else "검토 때문에 실행하지 않음. 필요하면 다시 부르세요")} for u in uses]})
+                    extra = []; svc = None
+                    continue
             if ans: final = ans.input; break
             if not uses:   # 도구 없이 글로만 답한 경우
                 cut = max([i for i, b in enumerate(r.content) if getattr(b, "type", "") in ("server_tool_use", "web_search_tool_result")] or [-1])
@@ -1266,6 +1284,55 @@ class Chat:
                 st.setdefault("ask_done", set()).update(keys)
                 out.update(type="ask", 질문=self._ask_groups(keys), 바로="고르지 않고 바로 보기")
         return out, bad
+
+    NAV_ONLY = re.compile(r"^\s*((버스|택시|지하철|차|자가용|걸어서)[^.?!]{0,8}|(딴|다른) ?(데|곳)[^.?!]{0,10}|[^.?!]{0,12}(블로그|후기)[^.?!]{0,10}|[^.?!]{0,10}(가는 ?길|어떻게 가)[^.?!]{0,8})\??\s*$")
+    def _need_review(self, st, text, first):
+        """검토할 마디: 주민이 말로 조건을 준 찾기 (문 닫은 곳 첫 찾기, 이동 방법·블로그·'딴 데'만 바꾸는 말은 뺌)"""
+        if first is not None or not text or self.NAV_ONLY.search(text): return False
+        return True
+
+    REVIEW_SYS = """당신은 대구 생활 시설 안내 서비스의 답변 검토자입니다. 상담원이 주민에게 보여 드리려는 답(찾은 곳과 글)을, 대구에 사는 상식 있는 사람의 눈으로 검토합니다. 가장 중요한 것은 보여 드리는 곳이 주민의 상황에 맞는지입니다. 첫째·둘째 곳이 그 자리에 어울리지 않거나 주민이 말한 조건에 어긋나면 반드시 문제로 봅니다. 셋째도 분명히 어긋나면 문제입니다. 글은 찾은 곳과 어긋나거나 없는 사실을 지어낸 경우만 문제로 보고, 표현의 세세한 차이나 '이름으로 보아 ~ 같아요' 같은 조심스러운 짐작, 스타벅스·투썸처럼 누구나 아는 사실은 막지 않습니다.
+따질 것:
+1. 주민이 지금까지 한 말을 모두 들은 사람이라면 이 곳들을 권하겠는가. 누구와 가는지, 무슨 자리인지(격식·기념일·접대·모임), 같이 가는 사람의 나이·식성·몸, 때, 형편, 대화 중에 덧붙인 조건을 함께 따집니다. 한 조건만 맞추고 자리의 성격이나 다른 조건을 놓친 곳이 앞(첫째·둘째)에 있으면 문제입니다.
+   (예) 부모님·아내와 조용한 저녁, 할아버지 생신 저녁 → 돼지국밥·닭갈비·쪽갈비·고기 굽는 시끌벅적한 집은 맞지 않음 / 아이들이 매운 것을 못 먹음 → 해물갈비찜·낙지·매운 양념집은 맞지 않음 / 20대 여성에게 인기 있는 곳 → 고깃집·국밥집은 블로그 글이 많아도 맞지 않음 / 고기를 별로 안 좋아함 → 돈가스도 고기 / 임신한 친구와 브런치 → 백반집은 브런치가 아님 / 아빠는 고기, 엄마는 소화가 약함 → 앞과 같은 국밥집 그대로면 덧붙인 조건 미반영
+2. 주민에게 필요한 '일'을 해 주는 곳인가, 낱말만 같은 곳인가. (예) 스마트폰 쓰는 법 배우기 → 휴대폰 판매점은 가르치는 곳이 아님 / 남자 펌 → 대부분의 동네 미용실이 하는데 멀리 있는 바버샵만 보여 줌
+3. 글: 찾은 곳과 맞지 않는 말, 자료에 없는 사실을 단정하는 말(그 가게가 무엇을 한다), 상식으로 아는 것까지 확인하라는 말(치킨집이 맥주를 파는지), 앞 답에서 이미 한 권유(전화로 물어보라)의 되풀이, 주민이 묻지 않은 긴 안내, 어색하거나 번역투인 말.
+문제로 보지 않는 것: 자료에 원래 없는 정보(분위기·조용함·주차·룸·메뉴·여는 시간)를 모른다고 솔직히 말하는 것. 가게 하나하나의 질은 아무도 모릅니다. 조건에 딱 맞는 곳이 근처에 없어서 가장 가까운 대안을 솔직히 밝히고 보여 준 것.
+problems는 3개 이하로 짧게, redo에는 상담원이 다시 할 일을 2문장 안으로 씁니다: 어떤 가게를 찾고(fit_words) 어떤 가게를 뺄지(avoid_words), 또는 글을 어떻게 고칠지."""
+    def _review(self, st, text, ans):
+        """답하기 전 검토 (10/30). 문제가 있으면 상담원에게 돌려줄 검토 의견, 없으면 None. 카카오 실시간 결과의 이름은 넘기지 않음"""
+        try:
+            conv = []
+            for m in (st.get("msgs") or [])[-8:]:
+                if isinstance(m.get("content"), str): conv.append(("주민: " if m["role"] == "user" else "상담원: ") + m["content"][:300])
+            conv.append("주민(지금): " + text)
+            rows = st.get("last_facts") or []; rank = st.get("last_rank") or []
+            places = []
+            for i, r_ in enumerate(rows[:5]):
+                c = rank[i] if i < len(rank) else {}
+                places.append(f"{r_.get('순위', i + 1)}. {r_.get('상호')} — {r_.get('종류', '')} — {r_.get('가는 길', '')}" + (" — 상황 맞춤 표시" if c.get("_맞춤") or c.get("_바람") else ""))
+            user = ("[대화]\n" + "\n".join(conv) + "\n\n[상담원이 보여 드리려는 곳]\n" + "\n".join(places)
+                    + "\n\n[상담원이 쓴 글 ([카드] 자리에 위 곳들이 나옴)]\n" + str(ans.get("text") or ""))
+            tool = {"name": "verdict", "description": "검토 결과", "input_schema": {"type": "object", "required": ["ok"], "properties": {
+                "ok": {"type": "boolean", "description": "주민에게 그대로 보여도 되면 true"},
+                "problems": {"type": "array", "items": {"type": "string"}, "description": "분명한 문제 (짧게)"},
+                "redo": {"type": "string", "description": "상담원이 다시 할 일 2~3문장"}}}}
+            r = self.client.messages.create(model=SONNET, max_tokens=350, system=self.REVIEW_SYS, tools=[tool], messages=[{"role": "user", "content": user + "\n\n검토 결과는 verdict 도구로만 답하세요."}])
+            u_ = getattr(r, "usage", None)
+            if u_ is not None: log_usage(SONNET, u_, "주민 답 검토")
+            v = next((b.input for b in r.content if getattr(b, "type", "") == "tool_use"), None)
+            if v is None:   # 도구 없이 글로 답한 경우 (JSON이 있으면 읽고, 없으면 통과)
+                t_ = "".join(getattr(b, "text", "") for b in r.content); m_ = re.search(r"\{.*\}", t_, re.S)
+                try: v = json.loads(m_.group(0)) if m_ else {}
+                except Exception: v = {}
+            self.usage["reviewed"] = self.usage.get("reviewed", 0) + 1
+            if v.get("ok") is not False or not (v.get("problems") or v.get("redo")): return None
+            self.usage["review_fail"] = self.usage.get("review_fail", 0) + 1
+            st["_review_note"] = v
+            return ("[답하기 전 검토 — 주민에게는 아직 보이지 않음]\n문제: " + " / ".join(v.get("problems") or []) + "\n다시 할 일: " + str(v.get("redo") or "")
+                    + "\n주민이 지금까지 말한 조건을 모두 담아 find_places를 다시 부르거나 글을 고친 뒤 answer를 다시 부르세요. 다시 찾아도 맞는 곳이 없으면 그렇다고 솔직히 말하고 가장 가까운 대안을 보여 드리세요. 검토 이야기는 주민에게 하지 않습니다.")
+        except Exception as e:
+            print("[답 검토 건너뜀]", type(e).__name__, str(e)[:120], flush=True); return None
 
     def _clean_quick(self, st, quick, cards):
         """빠른 답 버튼 가운데 지금 상황에 맞지 않는 것을 뺌 (헌준님 지적 10/19)

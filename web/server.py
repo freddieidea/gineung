@@ -328,7 +328,7 @@ def gov_doc(q):
         sec = [x for x in (q("sec") or "").split(",") if x in GD.SECTIONS]; ext = [x for x in (q("ext") or "").split(",") if x in GD.SECTIONS]
         try: notes = [str(x)[:200] for x in json.loads(base64.urlsafe_b64decode((q("notes") or "") + "==").decode("utf-8"))][:6] if q("notes") else []
         except Exception: notes = []
-        if sec: return ("text/html; charset=utf-8", GD.report_focus_html(b, gu, (q("title") or "")[:60] or None, sec, ext, notes, q("dong") or None, auto_print=q("print") == "1").encode("utf-8"), None)
+        if sec: return ("text/html; charset=utf-8", GD.report_focus_html(b, gu, (q("title") or "")[:60] or None, sec, ext, notes, q("dong") or None, auto_print=q("print") == "1", only=[x for x in (q("only") or "").split(",") if x], startup=q("startup") == "1").encode("utf-8"), None)
     if kind == "report": return ("text/html; charset=utf-8", GD.report_html(b, gu, gov_last_run(), auto_print=q("print") == "1", title=(q("title") or "")[:60] or None).encode("utf-8"), None)
     if kind == "xlsx":
         ts = [t for t in (q("tables") or "폐업,확인요청,공백구역").split(",") if t in GD.TABLES] or ["폐업"]
